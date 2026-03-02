@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Homepage</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo-area">
+      <div class="logo-placeholder"></div>
+      <span class="wordmark">Home</span>
+    </div>
+    <div class="search-container">
+      <input type="search" class="search-box" placeholder="Search the web" aria-label="Search the web">
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="shortcuts-section" id="shortcuts-section">
+      <div class="shortcuts-grid-wrapper">
+        <div class="shortcuts-grid-container">
+          <div class="shortcuts-grid" id="shortcuts-grid"></div>
+          <div class="drop-indicator" id="shortcuts-drop-indicator" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-cards-section">
+      <div class="content-cards-grid" id="content-cards">
+        <!-- Content cards rendered by app.js -->
+      </div>
+    </section>
+  </main>
+
+  <div class="customization-panel-overlay" id="customization-panel-overlay" aria-hidden="true"></div>
+  <aside class="customization-panel" id="customization-panel" aria-label="Shortcut customization">
+    <div class="customization-panel-header">
+      <h2 class="customization-panel-title">Customize shortcuts</h2>
+      <button type="button" class="customization-panel-close" id="customization-panel-close" aria-label="Close">×</button>
+    </div>
+    <div class="customization-panel-body">
+      <div class="customization-field">
+        <label class="customization-label">Appearance</label>
+        <button type="button" class="customization-action-btn" id="change-wallpaper-btn">
+          <span class="customization-action-icon">🖼</span>
+          Change wallpaper
+        </button>
+      </div>
+      <div class="customization-divider"></div>
+      <div class="customization-field">
+        <label class="customization-label">Manage your shortcuts</label>
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-shortcuts-toggle" checked>
+          <span class="customization-toggle-slider"></span>
+          Show shortcuts
+        </label>
+      </div>
+      <div class="customization-field" id="shortcuts-rows-field">
+        <label class="customization-label" for="shortcuts-rows-select">Rows shown by default</label>
+        <select id="shortcuts-rows-select" class="customization-select" aria-label="Number of rows">
+          <option value="2">2 rows</option>
+          <option value="3">3 rows</option>
+          <option value="4" selected>4 rows</option>
+          <option value="5">5 rows</option>
+          <option value="6">6 rows</option>
+          <option value="7">7 rows</option>
+          <option value="8">8 rows</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div class="customization-field">
+        <label class="customization-label">View</label>
+        <div class="customization-view-toggle" role="radiogroup" aria-label="View mode">
+          <label class="customization-view-option">
+            <input type="radio" name="tileView" value="list"> List
+          </label>
+          <label class="customization-view-option">
+            <input type="radio" name="tileView" value="grid" checked> Grid
+          </label>
+        </div>
+      </div>
+      <div class="customization-field customization-field--grid-size" id="grid-size-field">
+        <label class="customization-label" for="grid-size-slider">Tile size</label>
+        <div class="customization-slider-wrap">
+          <span class="customization-slider-label">Small</span>
+          <input type="range" id="grid-size-slider" class="customization-slider" min="0" max="100" value="50" step="50" aria-label="Grid tile size" title="Small, Default, Large">
+          <span class="customization-slider-label">Large</span>
+        </div>
+      </div>
+      <div class="customization-field">
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-labels-toggle" checked>
+          <span class="customization-toggle-slider"></span>
+          Show labels
+        </label>
+      </div>
+      <div class="customization-divider"></div>
+      <div class="customization-field">
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-widgets-toggle">
+          <span class="customization-toggle-slider"></span>
+          Show widgets
+        </label>
+      </div>
+      <div class="customization-field">
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-stories-toggle" checked>
+          <span class="customization-toggle-slider"></span>
+          Show stories
+        </label>
+      </div>
+      <div class="customization-field">
+        <button type="button" class="customization-action-btn" id="manage-topics-btn">
+          <span class="customization-action-icon">✨</span>
+          Manage your topic of interest
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <button type="button" class="customize-fab" id="customize-fab" aria-label="Customize" title="Customize">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+    <span class="customize-fab-label">Customize</span>
+  </button>
+
+  <script src="app.js"></script>
+</body>
+</html>
