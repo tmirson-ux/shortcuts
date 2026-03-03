@@ -1808,6 +1808,7 @@ function setupDragAndDrop(grid) {
         refreshFolderPanel(panel, folderItemData.folderId);
       }
       grid.classList.remove("shortcuts-grid--drop-target");
+      removePinnedAreaOverlay();
       showToast("Removed from folder");
       return;
     }
@@ -1826,6 +1827,7 @@ function setupDragAndDrop(grid) {
       renderShortcuts();
       clearDropTargets();
       hideIndicator();
+      removePinnedAreaOverlay();
       dragState = null;
       return;
     }
@@ -1857,6 +1859,7 @@ function setupDragAndDrop(grid) {
         }
         clearDropTargets();
         hideIndicator();
+        removePinnedAreaOverlay();
         dragState = null;
         return;
       }
@@ -1884,6 +1887,7 @@ function setupDragAndDrop(grid) {
     renderShortcuts();
     clearDropTargets();
     hideIndicator();
+    removePinnedAreaOverlay();
     dragState = null;
   }
 
@@ -1891,6 +1895,7 @@ function setupDragAndDrop(grid) {
     if (!e.relatedTarget || !grid.contains(e.relatedTarget)) {
       clearDropTargets();
       hideIndicator();
+      removePinnedAreaOverlay();
       grid.classList.remove("shortcuts-grid--drop-target");
     }
   }
