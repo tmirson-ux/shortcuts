@@ -525,9 +525,13 @@ function renderShortcutTile(shortcut, options = {}) {
     wrapper.appendChild(ctxBtn);
   }
 
-  const overlay = createShortcutOverlay(shortcut);
-  wrapper.appendChild(overlay);
-  setupShortcutOverlayBehavior(wrapper, tile, overlay);
+  if (isInstagramShortcut(shortcut)) {
+    setupShortcutExpandBehavior(wrapper, shortcut);
+  } else {
+    const overlay = createShortcutOverlay(shortcut);
+    wrapper.appendChild(overlay);
+    setupShortcutOverlayBehavior(wrapper, tile, overlay);
+  }
 
   return wrapper;
 }
@@ -602,11 +606,35 @@ function isAmazonShortcut(shortcut) {
   return (shortcut.url || "").toLowerCase().includes("amazon.com");
 }
 
-/** Fake headlines for Reddit Popular preview (local, no API) */
-const REDDIT_POPULAR_HEADLINES = [
-  "What's a skill that took you years to master but looks easy to others?",
-  "What's the most underrated city you've ever visited?",
-  "What's something that was normal 20 years ago but seems crazy now?",
+function isTwitterShortcut(shortcut) {
+  const url = (shortcut.url || "").toLowerCase();
+  return url.includes("twitter.com") || url.includes("x.com");
+}
+
+function isInstagramShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("instagram.com");
+}
+
+/** Fake posts for Reddit Popular preview (local, no API) */
+const REDDIT_POPULAR_POSTS = [
+  { subreddit: "r/AskReddit", title: "What's a skill that took you years to master but looks easy to others?", score: "2.4K", comments: "891" },
+  { subreddit: "r/travel", title: "What's the most underrated city you've ever visited?", score: "1.8K", comments: "423" },
+  { subreddit: "r/AskReddit", title: "What's something that was normal 20 years ago but seems crazy now?", score: "3.1K", comments: "1.2K" },
+];
+
+/** Fake trending for Twitter/X overlay (local, no API) */
+const TWITTER_TRENDING = [
+  { topic: "Technology", tag: "#AI", posts: "12.4K" },
+  { topic: "Sports", tag: "#WorldCup", posts: "89.2K" },
+  { topic: "Entertainment", tag: "#NewRelease", posts: "45.1K" },
+  { topic: "News", tag: "#Breaking", posts: "234K" },
+];
+
+/** Fake inbox for Gmail overlay (local, no API) */
+const GMAIL_FAKE_INBOX = [
+  { from: "GitHub", subject: "Your daily digest", preview: "3 new notifications in your repositories...", time: "2m" },
+  { from: "Stripe", subject: "Payment received", preview: "You received $149.00 from Acme Corp", time: "1h" },
+  { from: "Calendar", subject: "Meeting reminder", preview: "Team standup in 30 minutes", time: "2h" },
 ];
 
 /** Fake categories for Amazon overlay (local, no API) */
@@ -632,10 +660,11 @@ function createShortcutOverlay(shortcut) {
   const domain = getDomainFromUrl(shortcut.url);
   const sponsoredImageUrl = getSponsoredOverlayImageUrl(shortcut);
   const youtubeImage = isYouTubeShortcut(shortcut);
-  const gmailImage = isGmailShortcut(shortcut);
+  const gmailInbox = isGmailShortcut(shortcut);
   const redditHeadlines = isRedditShortcut(shortcut);
   const amazonCategories = isAmazonShortcut(shortcut);
-  const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null) || (gmailImage ? "images/email.png" : null);
+  const twitterTrending = isTwitterShortcut(shortcut);
+  const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null);
   const useImagePreview = !!overlayImageUrl;
 
   const overlay = document.createElement("div");
@@ -643,8 +672,25 @@ function createShortcutOverlay(shortcut) {
   overlay.setAttribute("role", "tooltip");
 
   const isSponsoredOverlay = !!sponsoredImageUrl;
-  const headlinesHtml = REDDIT_POPULAR_HEADLINES.map((h) => `<li class="shortcut-overlay-headline">${escapeHtml(h)}</li>`).join("");
+  const gmailInboxHtml = GMAIL_FAKE_INBOX.map((e) => `
+    <button type="button" class="shortcut-overlay-gmail-item" data-fake-gmail-item>
+      <div class="shortcut-overlay-gmail-row">
+        <span class="shortcut-overlay-gmail-from">${escapeHtml(e.from)}</span>
+        <span class="shortcut-overlay-gmail-time">${escapeHtml(e.time)}</span>
+      </div>
+      <span class="shortcut-overlay-gmail-subject">${escapeHtml(e.subject)}</span>
+      <span class="shortcut-overlay-gmail-preview">${escapeHtml(e.preview)}</span>
+    </button>
+  `).join("");
+  const redditPostsHtml = REDDIT_POPULAR_POSTS.map((p) => `
+    <button type="button" class="shortcut-overlay-reddit-item" data-fake-reddit-post>
+      <span class="shortcut-overlay-reddit-sub">${escapeHtml(p.subreddit)}</span>
+      <span class="shortcut-overlay-reddit-title">${escapeHtml(p.title)}</span>
+      <span class="shortcut-overlay-reddit-meta">↑ ${escapeHtml(p.score)} · ${escapeHtml(p.comments)} comments</span>
+    </button>
+  `).join("");
   const categoriesHtml = AMAZON_CATEGORIES.map((c) => `<div class="shortcut-overlay-category-square"><span class="shortcut-overlay-category-icon">${escapeHtml(c.icon)}</span><span class="shortcut-overlay-category-name">${escapeHtml(c.name)}</span></div>`).join("");
+  const trendingHtml = TWITTER_TRENDING.map((t) => `<div class="shortcut-overlay-trending-item"><span class="shortcut-overlay-trending-topic">${escapeHtml(t.topic)}</span><span class="shortcut-overlay-trending-tag">${escapeHtml(t.tag)}</span><span class="shortcut-overlay-trending-posts">${escapeHtml(t.posts)} posts</span></div>`).join("");
   overlay.innerHTML = isSponsoredOverlay
     ? `
     <div class="shortcut-overlay-preview shortcut-overlay-preview--image shortcut-overlay-preview--sponsored">
@@ -654,9 +700,31 @@ function createShortcutOverlay(shortcut) {
   `
     : redditHeadlines
     ? `
-    <div class="shortcut-overlay-preview shortcut-overlay-preview--headlines">
-      <span class="shortcut-overlay-headlines-title">Popular</span>
-      <ol class="shortcut-overlay-headlines-list">${headlinesHtml}</ol>
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--reddit">
+      <span class="shortcut-overlay-reddit-title-header">Popular</span>
+      <div class="shortcut-overlay-reddit-list">${redditPostsHtml}</div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
+    : twitterTrending
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--trending">
+      <span class="shortcut-overlay-trending-title">Trending</span>
+      <div class="shortcut-overlay-trending-list">${trendingHtml}</div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
+    : gmailInbox
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--gmail">
+      <span class="shortcut-overlay-gmail-title-header">Inbox</span>
+      <div class="shortcut-overlay-gmail-list">${gmailInboxHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
       <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
@@ -705,7 +773,7 @@ function createShortcutOverlay(shortcut) {
   let iframeLoaded = false;
 
   function loadPreview() {
-    if (useImagePreview || redditHeadlines || amazonCategories) return;
+    if (useImagePreview || redditHeadlines || amazonCategories || twitterTrending || gmailInbox) return;
     if (iframeLoaded) return;
     iframeLoaded = true;
     const iframe = overlay.querySelector(".shortcut-overlay-iframe");
@@ -732,13 +800,26 @@ function createShortcutOverlay(shortcut) {
     }, 2500);
   }
 
+  overlay.querySelectorAll("[data-fake-gmail-item]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Preview only — click shortcut to open");
+    });
+  });
+  overlay.querySelectorAll("[data-fake-reddit-post]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Preview only — click shortcut to open");
+    });
+  });
   const tabGroupBtn = overlay.querySelector('[data-action="tab-group"]');
   const folderBtn = overlay.querySelector('[data-action="folder"]');
   if (tabGroupBtn) {
     tabGroupBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Open in tab group:", shortcut.url);
       showToast("Open in tab group");
     });
   }
@@ -752,6 +833,114 @@ function createShortcutOverlay(shortcut) {
 
   overlay._loadIframe = loadPreview;
   return overlay;
+}
+
+/**
+ * Instagram: expand preview below shortcuts (no overlay)
+ */
+function setupShortcutExpandBehavior(wrapper, shortcut) {
+  const panel = document.getElementById("shortcut-expanded-preview");
+  if (!panel) return;
+
+  let hideTimeout = null;
+  const SHOW_DELAY = 400;
+  const HIDE_DELAY = 300;
+  let showTimeout = null;
+
+  const INSTAGRAM_FAKE_POSTS = [
+    { user: "travel_vibes", likes: "2.4K", caption: "Sunset at the beach 🌅" },
+    { user: "foodie_daily", likes: "891", caption: "Best pasta in town" },
+    { user: "design_studio", likes: "1.2K", caption: "New project preview ✨" },
+  ];
+
+  function getInstagramContent() {
+    const colors = ["#833ab4", "#fd1d1d", "#fcb045"];
+    const postsHtml = INSTAGRAM_FAKE_POSTS.map((post, i) => {
+      const c = colors[i];
+      return `
+        <button type="button" class="shortcut-expanded-post" data-fake-post>
+          <div class="shortcut-expanded-post-image" style="background:linear-gradient(135deg,${c},#405de6)"></div>
+          <div class="shortcut-expanded-post-meta">
+            <span class="shortcut-expanded-post-user">@${escapeHtml(post.user)}</span>
+            <span class="shortcut-expanded-post-likes">${escapeHtml(post.likes)} likes</span>
+            <span class="shortcut-expanded-post-caption">${escapeHtml(post.caption)}</span>
+          </div>
+        </button>
+      `;
+    }).join("");
+    return `
+      <div class="shortcut-expanded-preview-inner">
+        <span class="shortcut-expanded-label">${escapeHtml(shortcut.title)}</span>
+        <div class="shortcut-expanded-posts">${postsHtml}</div>
+        <div class="shortcut-expanded-actions">
+          <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+          <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function show() {
+    if (isDraggingShortcut) return;
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    if (showTimeout) return;
+    showTimeout = setTimeout(() => {
+      if (isDraggingShortcut) return;
+      showTimeout = null;
+      panel.innerHTML = getInstagramContent();
+      panel.classList.add("visible");
+      panel.setAttribute("aria-hidden", "false");
+
+      panel.querySelectorAll("[data-fake-post]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          showToast("Preview only — click shortcut to open");
+        });
+      });
+      const tabGroupBtn = panel.querySelector('[data-action="tab-group"]');
+      const folderBtn = panel.querySelector('[data-action="folder"]');
+      if (tabGroupBtn) tabGroupBtn.addEventListener("click", (e) => { e.preventDefault(); showToast("Open in tab group"); });
+      if (folderBtn) folderBtn.addEventListener("click", (e) => { e.preventDefault(); createFolderFromShortcut(shortcut); });
+    }, SHOW_DELAY);
+  }
+
+  function cancelShow() {
+    if (showTimeout) {
+      clearTimeout(showTimeout);
+      showTimeout = null;
+    }
+  }
+
+  function scheduleHide() {
+    if (hideTimeout) return;
+    hideTimeout = setTimeout(() => {
+      panel.classList.remove("visible");
+      panel.setAttribute("aria-hidden", "true");
+      hideTimeout = null;
+    }, HIDE_DELAY);
+  }
+
+  wrapper.addEventListener("mouseenter", () => show());
+  wrapper.addEventListener("mouseleave", (e) => {
+    if (!panel.contains(e.relatedTarget)) {
+      cancelShow();
+      scheduleHide();
+    }
+  });
+  panel.addEventListener("mouseenter", () => {
+    cancelShow();
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    panel.classList.add("visible");
+  });
+  panel.addEventListener("mouseleave", (e) => {
+    if (!wrapper.contains(e.relatedTarget)) scheduleHide();
+  });
 }
 
 /**
@@ -1392,6 +1581,11 @@ function renderShortcuts() {
   grid.innerHTML = "";
   grid.className = "shortcuts-grid shortcuts-layout" + (isExpanded ? " shortcuts-layout--expanded" : "");
   if (section) section.toggleAttribute("data-shortcuts-expanded", isExpanded);
+  const expandedPanel = document.getElementById("shortcut-expanded-preview");
+  if (expandedPanel) {
+    expandedPanel.classList.remove("visible");
+    expandedPanel.setAttribute("aria-hidden", "true");
+  }
 
   itemsToRender.forEach((item) => {
     if (item.type === "shortcut") {
@@ -2288,6 +2482,14 @@ function initResumeSection() {
 
   const tabs = section.querySelectorAll(".resume-tab");
   const panels = section.querySelectorAll(".resume-panel");
+  const titleEl = section.querySelector(".resume-section-title");
+
+  function setTitleFromTab(tab) {
+    if (titleEl && tab) {
+      const label = tab.getAttribute("aria-label") || tab.dataset.source;
+      titleEl.textContent = label ? label.charAt(0).toUpperCase() + label.slice(1) : "Resume your tasks";
+    }
+  }
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -2298,6 +2500,8 @@ function initResumeSection() {
       });
       tab.classList.add("resume-tab--active");
       tab.setAttribute("aria-selected", "true");
+
+      setTitleFromTab(tab);
 
       panels.forEach((p) => {
         p.classList.remove("resume-panel--active");
@@ -2310,6 +2514,9 @@ function initResumeSection() {
       }
     });
   });
+
+  const activeTab = section.querySelector(".resume-tab--active");
+  if (activeTab) setTitleFromTab(activeTab);
 
   section.hidden = !getShowResume();
 
