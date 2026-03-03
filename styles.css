@@ -37,10 +37,9 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
+  justify-content: space-between;
   padding: 2rem 1.5rem 1.5rem;
-  max-width: 720px;
+  max-width: 1920px;
   margin: 0 auto;
 }
 
@@ -48,6 +47,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Spacer matches logo width so search is centered on page */
+.header::after {
+  content: "";
+  width: 8rem;
   flex-shrink: 0;
 }
 
@@ -125,7 +131,14 @@ body {
   cursor: pointer;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
-  transition: background 0.15s;
+  transition: background 0.15s, opacity 0.2s, visibility 0.2s;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.shortcuts-section:hover .shortcuts-show-more-btn {
+  opacity: 1;
+  visibility: visible;
 }
 
 .shortcuts-show-more-btn:hover {
@@ -1538,6 +1551,39 @@ body {
   gap: 0.75rem;
 }
 
+.customization-slider-track {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.customization-slider-tick {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  top: 50%;
+  background: rgba(124, 58, 237, 0.4);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.customization-slider-tick:nth-child(1) {
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.customization-slider-tick:nth-child(2) {
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.customization-slider-tick:nth-child(3) {
+  right: 0;
+  left: auto;
+  transform: translateY(-50%);
+}
+
 .customization-slider-label {
   font-size: 0.75rem;
   color: var(--text-secondary);
@@ -1676,6 +1722,10 @@ body {
   .header {
     flex-direction: column;
     padding: 1.5rem 1rem;
+  }
+
+  .header::after {
+    display: none;
   }
 
   .logo-area {

@@ -14,6 +14,7 @@ const SHORTCUTS_ROWS_KEY = "homepage.shortcutsRows";
 const STATE_VERSION = 2;
 
 let isDraggingShortcut = false;
+let shortcutsExpanded = false;
 
 function getTileView() {
   try {
@@ -111,9 +112,8 @@ function setShowShortcuts(show) {
 function getShortcutsRows() {
   try {
     const v = localStorage.getItem(SHORTCUTS_ROWS_KEY);
-    if (v === "all") return "all";
     const n = parseInt(v, 10);
-    if (!isNaN(n) && n >= 2 && n <= 8) return n;
+    if (!isNaN(n) && n >= 1 && n <= 4) return n;
   } catch (_) {}
   return 4;
 }
@@ -124,11 +124,11 @@ function setShortcutsRows(rows) {
   } catch (_) {}
 }
 
+const ITEMS_PER_ROW = 10;
+
 function getMaxShortcutsToShow() {
   const rows = getShortcutsRows();
-  if (rows === "all") return Infinity;
-  const itemsPerRow = getTileSize() === "small" ? 10 : getTileSize() === "large" ? 5 : 7;
-  return rows * itemsPerRow;
+  return rows * ITEMS_PER_ROW;
 }
 
 function applyCustomization() {
@@ -1268,10 +1268,8 @@ function renderShortcuts() {
   if (!grid) return;
 
   const maxShow = getMaxShortcutsToShow();
-  const isExpanded = sessionStorage.getItem("shortcuts-expanded") === "true";
-  const itemsToRender = (maxShow === Infinity || isExpanded)
-    ? visibleItems
-    : visibleItems.slice(0, maxShow);
+  const isExpanded = shortcutsExpanded;
+  const itemsToRender = isExpanded ? visibleItems : visibleItems.slice(0, maxShow);
   const hasMore = visibleItems.length > itemsToRender.length;
 
   grid.innerHTML = "";
@@ -1326,21 +1324,20 @@ function renderShortcuts() {
   area.append(addWrapper, settingsBtn);
   grid.appendChild(area);
 
+  section?.querySelectorAll(".shortcuts-show-more-wrapper").forEach((el) => el.remove());
   if (hasMore) {
     const showMoreWrapper = document.createElement("div");
     showMoreWrapper.className = "shortcuts-show-more-wrapper";
     const showMoreBtn = document.createElement("button");
     showMoreBtn.type = "button";
     showMoreBtn.className = "shortcuts-show-more-btn";
-    showMoreBtn.textContent = `Show ${visibleItems.length - itemsToRender.length} more`;
+    showMoreBtn.textContent = "See all";
     showMoreBtn.addEventListener("click", () => {
-      sessionStorage.setItem("shortcuts-expanded", "true");
+      shortcutsExpanded = true;
       renderShortcuts();
     });
     showMoreWrapper.appendChild(showMoreBtn);
     section?.appendChild(showMoreWrapper);
-  } else {
-    section?.querySelector(".shortcuts-show-more-wrapper")?.remove();
   }
 
   requestAnimationFrame(() => positionAddButtonAfterLastItem());
@@ -1627,6 +1624,9 @@ function setupDragAndDrop(grid) {
   const indicator = document.getElementById("shortcuts-drop-indicator");
 
   let dragState = null;
+  let lastDragOverTarget = null;
+  let lastInsertBefore = true;
+  let lastShortcutDropAction = "reorder"; /* "reorder" | "folder" */
 
   function hideIndicator() {
     if (indicator) {
@@ -1736,6 +1736,7 @@ function setupDragAndDrop(grid) {
 
     if (folderTile) {
       folderTile.classList.add("drop-target");
+      lastDragOverTarget = folderTile;
       hideIndicator();
       return;
     }
@@ -1743,8 +1744,24 @@ function setupDragAndDrop(grid) {
     if (shortcutTile) {
       const targetId = shortcutTile.getAttribute("data-id");
       if (targetId && targetId !== dragState.id) {
+        const targetArea = shortcutTile.getAttribute("data-area");
+        if (targetArea === "sponsored") return;
         shortcutTile.classList.add("drop-target");
-        hideIndicator();
+        lastDragOverTarget = shortcutTile;
+        const rect = shortcutTile.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        if (relX < 0.33) {
+          lastShortcutDropAction = "reorder";
+          lastInsertBefore = true;
+          showIndicator(grid?.parentElement, shortcutTile, true);
+        } else if (relX > 0.67) {
+          lastShortcutDropAction = "reorder";
+          lastInsertBefore = false;
+          showIndicator(grid?.parentElement, shortcutTile, false);
+        } else {
+          lastShortcutDropAction = "folder";
+          hideIndicator();
+        }
         return;
       }
     }
@@ -1757,17 +1774,22 @@ function setupDragAndDrop(grid) {
     if (targetArea === "sponsored") return;
 
     target.classList.add("drop-target");
+    lastDragOverTarget = target;
     const rect = target.getBoundingClientRect();
-    const insertBefore = addBtn ? true : e.clientX < rect.left + rect.width / 2;
+    lastInsertBefore = addBtn ? true : e.clientX < rect.left + rect.width / 2;
     const targetItemIndex = addBtn
       ? getItems(loadState()).length
       : parseInt((shortcut || target).getAttribute("data-item-index") || "0", 10);
     const container = grid?.parentElement;
-    showIndicator(container, target, insertBefore);
+    showIndicator(container, target, lastInsertBefore);
   }
 
   function handleDrop(e) {
     e.preventDefault();
+
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const root = (el && grid.contains(el)) ? el : e.target;
+    const resolveTarget = (sel) => root.closest(sel) || lastDragOverTarget?.closest(sel);
 
     const folderItemData = (() => {
       try {
@@ -1792,9 +1814,9 @@ function setupDragAndDrop(grid) {
 
     if (!dragState) return;
 
-    const folderTile = e.target.closest(".folder-tile[data-drop-target='folder']");
-    const addBtn = e.target.closest(".add-shortcut-btn");
-    const shortcutTile = e.target.closest(".shortcut-tile:not(.folder-tile)");
+    const folderTile = resolveTarget(".folder-tile[data-drop-target='folder']");
+    const addBtn = resolveTarget(".add-shortcut-btn");
+    const shortcutTile = resolveTarget(".shortcut-tile:not(.folder-tile)");
 
     if (folderTile) {
       const folderId = folderTile.getAttribute("data-id");
@@ -1811,12 +1833,27 @@ function setupDragAndDrop(grid) {
     if (shortcutTile) {
       const targetId = shortcutTile.getAttribute("data-id");
       if (targetId && targetId !== dragState.id) {
-        const state = loadState();
-        const next = createFolderFromDrop(state, dragState.id, targetId);
-        if (next !== state) {
+        if (lastShortcutDropAction === "folder") {
+          const state = loadState();
+          const next = createFolderFromDrop(state, dragState.id, targetId);
+          if (next !== state) {
+            saveState(next);
+            renderShortcuts();
+            showToast("Created folder");
+          }
+        } else {
+          const targetItemIndex = parseInt(shortcutTile.getAttribute("data-item-index") || "0", 10);
+          const effectiveTargetIndex = lastInsertBefore ? targetItemIndex : targetItemIndex + 1;
+          const targetArea = shortcutTile.getAttribute("data-area");
+          const state = loadState();
+          const next = applyMove(state, {
+            draggedId: dragState.id,
+            sourceItemIndex: dragState.sourceItemIndex,
+            targetItemIndex: effectiveTargetIndex,
+            targetArea,
+          });
           saveState(next);
           renderShortcuts();
-          showToast("Created folder");
         }
         clearDropTargets();
         hideIndicator();
@@ -1865,6 +1902,9 @@ function setupDragAndDrop(grid) {
     grid.classList.remove("shortcuts-grid--drop-target");
     e.target.closest(".shortcut-tile")?.classList.remove("dragging");
     dragState = null;
+    lastDragOverTarget = null;
+    lastInsertBefore = true;
+    lastShortcutDropAction = "reorder";
     isDraggingShortcut = false;
   }
 
@@ -1935,7 +1975,7 @@ function openCustomizationPanel() {
   const rowsSelect = document.getElementById("shortcuts-rows-select");
   if (rowsSelect) {
     const rows = getShortcutsRows();
-    rowsSelect.value = rows === "all" ? "all" : String(rows);
+    rowsSelect.value = String(rows);
   }
   const shortcutsRowsField = document.getElementById("shortcuts-rows-field");
   if (shortcutsRowsField) shortcutsRowsField.hidden = !getShowShortcuts();
@@ -2002,9 +2042,9 @@ function setupCustomizationPanel() {
 
   const rowsSelect = document.getElementById("shortcuts-rows-select");
   rowsSelect?.addEventListener("change", (e) => {
-    const v = e.target.value;
-    setShortcutsRows(v === "all" ? "all" : parseInt(v, 10));
-    sessionStorage.removeItem("shortcuts-expanded");
+    const v = parseInt(e.target.value, 10);
+    setShortcutsRows(v);
+    shortcutsExpanded = false;
     applyCustomization();
     renderShortcuts();
   });

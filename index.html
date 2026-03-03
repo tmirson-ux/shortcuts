@@ -60,14 +60,10 @@
       <div class="customization-field" id="shortcuts-rows-field">
         <label class="customization-label" for="shortcuts-rows-select">Rows shown by default</label>
         <select id="shortcuts-rows-select" class="customization-select" aria-label="Number of rows">
+          <option value="1">1 row</option>
           <option value="2">2 rows</option>
           <option value="3">3 rows</option>
           <option value="4" selected>4 rows</option>
-          <option value="5">5 rows</option>
-          <option value="6">6 rows</option>
-          <option value="7">7 rows</option>
-          <option value="8">8 rows</option>
-          <option value="all">All</option>
         </select>
       </div>
       <div class="customization-field">
@@ -85,7 +81,12 @@
         <label class="customization-label" for="grid-size-slider">Tile size</label>
         <div class="customization-slider-wrap">
           <span class="customization-slider-label">Small</span>
-          <input type="range" id="grid-size-slider" class="customization-slider" min="0" max="100" value="50" step="50" aria-label="Grid tile size" title="Small, Default, Large">
+          <div class="customization-slider-track">
+            <span class="customization-slider-tick" aria-hidden="true"></span>
+            <span class="customization-slider-tick" aria-hidden="true"></span>
+            <span class="customization-slider-tick" aria-hidden="true"></span>
+            <input type="range" id="grid-size-slider" class="customization-slider" min="0" max="100" value="50" step="50" aria-label="Grid tile size" title="Small, Default, Large">
+          </div>
           <span class="customization-slider-label">Large</span>
         </div>
       </div>
