@@ -1,0 +1,15 @@
+{
+  "history": [
+    { "id": "h1", "title": "GitHub - Pull requests", "url": "https://github.com/pulls", "domain": "github.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=github.com&sz=32", "visitedAt": "2025-03-03T10:30:00Z" },
+    { "id": "h2", "title": "Gmail - Inbox", "url": "https://mail.google.com", "domain": "mail.google.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=mail.google.com&sz=32", "visitedAt": "2025-03-03T09:15:00Z" },
+    { "id": "h3", "title": "MDN Web Docs - JavaScript", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript", "domain": "developer.mozilla.org", "faviconUrl": "https://www.google.com/s2/favicons?domain=developer.mozilla.org&sz=32", "visitedAt": "2025-03-03T08:45:00Z" }
+  ],
+  "tabs": [
+    { "id": "t1", "title": "Cursor - AI Code Editor", "url": "https://cursor.com", "domain": "cursor.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=cursor.com&sz=32" },
+    { "id": "t2", "title": "Stack Overflow - Questions", "url": "https://stackoverflow.com/questions", "domain": "stackoverflow.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=stackoverflow.com&sz=32" }
+  ],
+  "bookmarks": [
+    { "id": "b1", "title": "Project Dashboard", "url": "https://app.example.com/dashboard", "domain": "app.example.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=example.com&sz=32", "visitCount": 42 },
+    { "id": "b2", "title": "Design System", "url": "https://design.example.com", "domain": "design.example.com", "faviconUrl": "https://www.google.com/s2/favicons?domain=example.com&sz=32", "visitCount": 28 }
+  ]
+}

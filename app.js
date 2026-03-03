@@ -4,12 +4,15 @@
  * Data model: shortcuts map, folders map, items array (ordered layout)
  */
 
+const ENABLE_RESUME = true;
+
 const STORAGE_KEY = "homepage.shortcuts";
 const TILE_SIZE_KEY = "homepage.tileSize";
 const TILE_VIEW_KEY = "homepage.tileView";
 const TILE_GRID_SIZE_KEY = "homepage.gridSize";
 const SHOW_LABELS_KEY = "homepage.showLabels";
 const SHOW_SHORTCUTS_KEY = "homepage.showShortcuts";
+const SHOW_RESUME_KEY = "homepage.showResume";
 const SHORTCUTS_ROWS_KEY = "homepage.shortcutsRows";
 const STATE_VERSION = 2;
 
@@ -95,6 +98,20 @@ function setShowLabels(show) {
   } catch (_) {}
 }
 
+function getShowResume() {
+  try {
+    const v = localStorage.getItem(SHOW_RESUME_KEY);
+    if (v === "true") return true;
+  } catch (_) {}
+  return false;
+}
+
+function setShowResume(show) {
+  try {
+    localStorage.setItem(SHOW_RESUME_KEY, String(show));
+  } catch (_) {}
+}
+
 function getShowShortcuts() {
   try {
     const v = localStorage.getItem(SHOW_SHORTCUTS_KEY);
@@ -115,7 +132,7 @@ function getShortcutsRows() {
     const n = parseInt(v, 10);
     if (!isNaN(n) && n >= 1 && n <= 4) return n;
   } catch (_) {}
-  return 4;
+  return 1;
 }
 
 function setShortcutsRows(rows) {
@@ -124,11 +141,18 @@ function setShortcutsRows(rows) {
   } catch (_) {}
 }
 
-const ITEMS_PER_ROW = 10;
+const ITEMS_PER_ROW_DEFAULT = 10;
+
+function getItemsPerRow() {
+  const size = getTileSize();
+  if (size === "small") return 12;
+  if (size === "large") return 8;
+  return ITEMS_PER_ROW_DEFAULT;
+}
 
 function getMaxShortcutsToShow() {
   const rows = getShortcutsRows();
-  return rows * ITEMS_PER_ROW;
+  return rows * getItemsPerRow();
 }
 
 function applyCustomization() {
@@ -289,15 +313,35 @@ function getSponsoredIds(state) {
  * Mock content cards data (static)
  */
 const MOCK_CONTENT_CARDS = [
-  { id: 1, title: "Getting Started with Web Development", snippet: "Learn the fundamentals of HTML, CSS, and JavaScript to build your first website." },
-  { id: 2, title: "Modern CSS Techniques", snippet: "Explore flexbox, grid, and custom properties for responsive layouts." },
-  { id: 3, title: "JavaScript Best Practices", snippet: "Write clean, maintainable code with these essential patterns and tips." },
-  { id: 4, title: "Browser DevTools Guide", snippet: "Master the tools that help you debug and optimize your web applications." },
-  { id: 5, title: "Accessibility Fundamentals", snippet: "Make your sites usable for everyone with ARIA and semantic HTML." },
-  { id: 6, title: "Performance Optimization", snippet: "Speed up your pages with lazy loading, caching, and code splitting." },
-  { id: 7, title: "Progressive Web Apps", snippet: "Build installable, offline-capable web experiences." },
-  { id: 8, title: "Design Systems", snippet: "Create consistent UIs with reusable components and tokens." },
+  { id: 1, title: "Getting Started with Web Development", snippet: "Learn the fundamentals of HTML, CSS, and JavaScript to build your first website.", size: "big", topic: "Technology" },
+  { id: 2, title: "Modern CSS Techniques", snippet: "Explore flexbox, grid, and custom properties for responsive layouts.", size: "default", topic: "Technology" },
+  { id: 3, title: "JavaScript Best Practices", snippet: "Write clean, maintainable code with these essential patterns and tips.", size: "small", topic: "Technology" },
+  { id: 4, title: "Browser DevTools Guide", snippet: "Master the tools that help you debug and optimize your web applications.", size: "default", topic: "Technology" },
+  { id: 5, title: "Accessibility Fundamentals", snippet: "Make your sites usable for everyone with ARIA and semantic HTML.", size: "small", topic: "Technology" },
+  { id: 6, title: "TypeScript Essentials", snippet: "Add type safety to your JavaScript projects.", size: "default", topic: "Technology" },
+  { id: 7, title: "React Hooks", snippet: "Modern state management in React.", size: "default", topic: "Technology" },
+  { id: 8, title: "Performance Optimization", snippet: "Speed up your pages with lazy loading, caching, and code splitting.", size: "big", topic: "Development" },
+  { id: 9, title: "Progressive Web Apps", snippet: "Build installable, offline-capable web experiences.", size: "default", topic: "Development" },
+  { id: 10, title: "API Design", snippet: "RESTful and GraphQL best practices.", size: "small", topic: "Development" },
+  { id: 11, title: "Testing Strategies", snippet: "Unit, integration, and e2e testing.", size: "small", topic: "Development" },
+  { id: 12, title: "CI/CD Pipelines", snippet: "Automate your deployment workflow.", size: "default", topic: "Development" },
+  { id: 13, title: "Monitoring & Observability", snippet: "Track performance and errors in production.", size: "small", topic: "Development" },
+  { id: 14, title: "Design Systems", snippet: "Create consistent UIs with reusable components and tokens.", size: "small", topic: "Design" },
+  { id: 15, title: "UI Patterns", snippet: "Common patterns for modern interfaces.", size: "default", topic: "Design" },
+  { id: 16, title: "Color Theory", snippet: "Effective use of color in design.", size: "default", topic: "Design" },
+  { id: 17, title: "Typography", snippet: "Choosing and pairing fonts.", size: "small", topic: "Design" },
+  { id: 18, title: "Motion Design", snippet: "Micro-interactions and animations.", size: "small", topic: "Design" },
+  { id: 19, title: "Debugging Tips", snippet: "Efficient debugging workflows.", size: "default", topic: "Development" },
+  { id: 20, title: "Code Review", snippet: "Best practices for reviewing code.", size: "small", topic: "Development" },
+  { id: 21, title: "Documentation", snippet: "Writing maintainable docs.", size: "small", topic: "Development" },
 ];
+
+/** Row templates - each fills 4 columns exactly */
+const CONTENT_ROW_TEMPLATES = {
+  a: { big: 1, default: 1, small: 2 },   /* big + 2 small + 1 default */
+  b: { big: 0, default: 4, small: 0 },   /* 4 default */
+  c: { big: 0, default: 2, small: 4 },    /* 2 small + 2 default + 2 small */
+};
 
 const FALLBACK_FAVICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%237c3aed' width='32' height='32' rx='6'/%3E%3Ctext x='16' y='21' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'%3E%3F%3C/text%3E%3C/svg%3E";
@@ -481,11 +525,9 @@ function renderShortcutTile(shortcut, options = {}) {
     wrapper.appendChild(ctxBtn);
   }
 
-  if (!shortcut.sponsored) {
-    const overlay = createShortcutOverlay(shortcut);
-    wrapper.appendChild(overlay);
-    setupShortcutOverlayBehavior(wrapper, tile, overlay);
-  }
+  const overlay = createShortcutOverlay(shortcut);
+  wrapper.appendChild(overlay);
+  setupShortcutOverlayBehavior(wrapper, tile, overlay);
 
   return wrapper;
 }
@@ -552,21 +594,90 @@ function isYouTubeShortcut(shortcut) {
   return url.includes("youtube.com") || url.includes("youtu.be");
 }
 
+function isRedditShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("reddit.com");
+}
+
+function isAmazonShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("amazon.com");
+}
+
+/** Fake headlines for Reddit Popular preview (local, no API) */
+const REDDIT_POPULAR_HEADLINES = [
+  "What's a skill that took you years to master but looks easy to others?",
+  "What's the most underrated city you've ever visited?",
+  "What's something that was normal 20 years ago but seems crazy now?",
+];
+
+/** Fake categories for Amazon overlay (local, no API) */
+const AMAZON_CATEGORIES = [
+  { name: "Electronics", icon: "📱" },
+  { name: "Books", icon: "📚" },
+  { name: "Home", icon: "🏠" },
+  { name: "Fashion", icon: "👕" },
+];
+
+/** Overlay image for sponsored shortcuts: Firefox (s1), Mozilla VPN (s2) */
+function getSponsoredOverlayImageUrl(shortcut) {
+  if (!shortcut?.sponsored) return null;
+  if (shortcut.id === "s1") return "images/firefox.png";
+  if (shortcut.id === "s2") return "images/vpn.png";
+  return null;
+}
+
 /**
  * Create the hover overlay popover for a shortcut
  */
 function createShortcutOverlay(shortcut) {
   const domain = getDomainFromUrl(shortcut.url);
-  const useImagePreview = isYouTubeShortcut(shortcut);
+  const sponsoredImageUrl = getSponsoredOverlayImageUrl(shortcut);
+  const youtubeImage = isYouTubeShortcut(shortcut);
+  const gmailImage = isGmailShortcut(shortcut);
+  const redditHeadlines = isRedditShortcut(shortcut);
+  const amazonCategories = isAmazonShortcut(shortcut);
+  const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null) || (gmailImage ? "images/email.png" : null);
+  const useImagePreview = !!overlayImageUrl;
 
   const overlay = document.createElement("div");
   overlay.className = "shortcut-hover-overlay";
   overlay.setAttribute("role", "tooltip");
 
-  overlay.innerHTML = useImagePreview
+  const isSponsoredOverlay = !!sponsoredImageUrl;
+  const headlinesHtml = REDDIT_POPULAR_HEADLINES.map((h) => `<li class="shortcut-overlay-headline">${escapeHtml(h)}</li>`).join("");
+  const categoriesHtml = AMAZON_CATEGORIES.map((c) => `<div class="shortcut-overlay-category-square"><span class="shortcut-overlay-category-icon">${escapeHtml(c.icon)}</span><span class="shortcut-overlay-category-name">${escapeHtml(c.name)}</span></div>`).join("");
+  overlay.innerHTML = isSponsoredOverlay
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--image shortcut-overlay-preview--sponsored">
+      <img class="shortcut-overlay-image" src="${overlayImageUrl}" alt="Preview of ${escapeHtml(shortcut.title)}">
+    </div>
+    <div class="shortcut-overlay-sponsored-label">Sponsored</div>
+  `
+    : redditHeadlines
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--headlines">
+      <span class="shortcut-overlay-headlines-title">Popular</span>
+      <ol class="shortcut-overlay-headlines-list">${headlinesHtml}</ol>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
+    : amazonCategories
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--categories">
+      <span class="shortcut-overlay-categories-title">Shop by category</span>
+      <div class="shortcut-overlay-categories-grid">${categoriesHtml}</div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
+    : useImagePreview
     ? `
     <div class="shortcut-overlay-preview shortcut-overlay-preview--image">
-      <img class="shortcut-overlay-image" src="images/youtube.png" alt="Preview of ${escapeHtml(shortcut.title)}">
+      <img class="shortcut-overlay-image" src="${overlayImageUrl}" alt="Preview of ${escapeHtml(shortcut.title)}">
     </div>
     <div class="shortcut-overlay-actions">
       <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
@@ -594,7 +705,7 @@ function createShortcutOverlay(shortcut) {
   let iframeLoaded = false;
 
   function loadPreview() {
-    if (useImagePreview) return;
+    if (useImagePreview || redditHeadlines || amazonCategories) return;
     if (iframeLoaded) return;
     iframeLoaded = true;
     const iframe = overlay.querySelector(".shortcut-overlay-iframe");
@@ -621,18 +732,23 @@ function createShortcutOverlay(shortcut) {
     }, 2500);
   }
 
-  overlay.querySelector('[data-action="tab-group"]').addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Open in tab group:", shortcut.url);
-    showToast("Open in tab group");
-  });
-
-  overlay.querySelector('[data-action="folder"]').addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    createFolderFromShortcut(shortcut);
-  });
+  const tabGroupBtn = overlay.querySelector('[data-action="tab-group"]');
+  const folderBtn = overlay.querySelector('[data-action="folder"]');
+  if (tabGroupBtn) {
+    tabGroupBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("Open in tab group:", shortcut.url);
+      showToast("Open in tab group");
+    });
+  }
+  if (folderBtn) {
+    folderBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      createFolderFromShortcut(shortcut);
+    });
+  }
 
   overlay._loadIframe = loadPreview;
   return overlay;
@@ -1269,11 +1385,13 @@ function renderShortcuts() {
 
   const maxShow = getMaxShortcutsToShow();
   const isExpanded = shortcutsExpanded;
+  // Sponsored shortcuts count toward max tiles (they occupy slots in the row)
   const itemsToRender = isExpanded ? visibleItems : visibleItems.slice(0, maxShow);
   const hasMore = visibleItems.length > itemsToRender.length;
 
   grid.innerHTML = "";
-  grid.className = "shortcuts-grid shortcuts-layout";
+  grid.className = "shortcuts-grid shortcuts-layout" + (isExpanded ? " shortcuts-layout--expanded" : "");
+  if (section) section.toggleAttribute("data-shortcuts-expanded", isExpanded);
 
   itemsToRender.forEach((item) => {
     if (item.type === "shortcut") {
@@ -1661,7 +1779,7 @@ function setupDragAndDrop(grid) {
     if (existing) existing.remove();
     if (!container || !dragState) return;
 
-    const pinnedTiles = Array.from(grid.querySelectorAll('.shortcut-tile[data-area="pinned"]'));
+    const pinnedTiles = Array.from(grid.querySelectorAll('.shortcut-tile:not(.folder-tile)[data-area="pinned"]'));
     if (pinnedTiles.length === 0) return;
 
     const containerRect = container.getBoundingClientRect();
@@ -1922,20 +2040,39 @@ function setupDragAndDrop(grid) {
   }
 }
 
+/** Random image URL - Unsplash Source (https://source.unsplash.com) */
+function getContentCardImageUrl(width, height, seed) {
+  return `https://source.unsplash.com/random/${width}x${height}?sig=${seed}`;
+}
+
 /**
  * Renders a single content card
  */
 function renderContentCard(card) {
   const el = document.createElement("article");
-  el.className = "content-card";
+  el.className = "content-card" + (card.size ? ` content-card--${card.size}` : "");
   el.setAttribute("data-id", card.id);
+  const snippetHtml = card.size === "big" ? `<p class="content-card-snippet">${escapeHtml(card.snippet)}</p>` : "";
+  const imgW = card.size === "big" ? 400 : card.size === "small" ? 130 : 300;
+  const imgH = card.size === "big" ? 300 : card.size === "small" ? 130 : 200;
+  const imgUrl = getContentCardImageUrl(imgW, imgH, card.id);
   el.innerHTML = `
     <div class="content-card-thumbnail"></div>
     <div class="content-card-body">
       <h3 class="content-card-title">${escapeHtml(card.title)}</h3>
-      <p class="content-card-snippet">${escapeHtml(card.snippet)}</p>
+      ${snippetHtml}
     </div>
   `;
+  const thumb = el.querySelector(".content-card-thumbnail");
+  const img = document.createElement("img");
+  img.src = imgUrl;
+  img.alt = "";
+  img.loading = "lazy";
+  img.onerror = () => {
+    img.src = `https://picsum.photos/seed/${card.id}/${imgW}/${imgH}`;
+    img.onerror = () => { img.style.display = "none"; };
+  };
+  thumb.appendChild(img);
   return el;
 }
 
@@ -1946,13 +2083,245 @@ function escapeHtml(text) {
 }
 
 /**
- * Renders the content cards section (static)
+ * Renders a stack of 2 small cards (takes 1 grid column)
+ */
+function renderSmallCardsStack(cards) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "content-cards-small-stack";
+  cards.forEach((card) => wrapper.appendChild(renderContentCard(card)));
+  return wrapper;
+}
+
+/**
+ * Builds full rows from cards using templates (a), (b), (c).
+ * Each row fills 4 columns: a=big+2small+default, b=4default, c=2small+2default+2small
+ */
+function buildContentRows(cards) {
+  const big = cards.filter((c) => c.size === "big");
+  const def = cards.filter((c) => c.size === "default");
+  const small = cards.filter((c) => c.size === "small");
+
+  const rows = [];
+  const templateOrder = ["a", "b", "c"];
+
+  function canFill(t) {
+    const req = CONTENT_ROW_TEMPLATES[t];
+    return big.length >= req.big && def.length >= req.default && small.length >= req.small;
+  }
+
+  function consume(t) {
+    const req = CONTENT_ROW_TEMPLATES[t];
+    const rowBig = req.big ? big.splice(0, req.big) : [];
+    const rowDef = req.default ? def.splice(0, req.default) : [];
+    const rowSmall = req.small ? small.splice(0, req.small) : [];
+    return { type: t, big: rowBig, default: rowDef, small: rowSmall };
+  }
+
+  let filled;
+  do {
+    filled = false;
+    for (const t of templateOrder) {
+      if (canFill(t)) {
+        rows.push(consume(t));
+        filled = true;
+        break;
+      }
+    }
+  } while (filled);
+
+  return rows;
+}
+
+/**
+ * Renders grid items for a row based on template type
+ */
+function renderRowItems(row) {
+  const items = [];
+  if (row.type === "a") {
+    if (row.big[0]) items.push(renderContentCard(row.big[0]));
+    if (row.small.length >= 2) items.push(renderSmallCardsStack(row.small.slice(0, 2)));
+    if (row.default[0]) items.push(renderContentCard(row.default[0]));
+  } else if (row.type === "b") {
+    row.default.forEach((c) => items.push(renderContentCard(c)));
+  } else if (row.type === "c") {
+    if (row.small.length >= 2) items.push(renderSmallCardsStack(row.small.slice(0, 2)));
+    row.default.forEach((c) => items.push(renderContentCard(c)));
+    if (row.small.length >= 4) items.push(renderSmallCardsStack(row.small.slice(2, 4)));
+  }
+  return items;
+}
+
+/**
+ * Renders the content cards section with topic headers and full rows only
  */
 function renderContentCards() {
   const container = document.getElementById("content-cards");
   if (!container) return;
+
+  const cardsByTopic = {};
   MOCK_CONTENT_CARDS.forEach((card) => {
-    container.appendChild(renderContentCard(card));
+    const topic = card.topic || "For you";
+    if (!cardsByTopic[topic]) cardsByTopic[topic] = [];
+    cardsByTopic[topic].push(card);
+  });
+
+  Object.entries(cardsByTopic).forEach(([topic, cards]) => {
+    const rows = buildContentRows([...cards]);
+    if (rows.length === 0) return;
+
+    const block = document.createElement("div");
+    block.className = "content-cards-block";
+    const header = document.createElement("h2");
+    header.className = "content-section-topic";
+    header.textContent = topic;
+    block.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "content-cards-grid";
+
+    rows.forEach((row) => {
+      renderRowItems(row).forEach((el) => grid.appendChild(el));
+    });
+
+    block.appendChild(grid);
+    container.appendChild(block);
+  });
+}
+
+/* ===== Resume your tasks (History / Tabs / Bookmarks) ===== */
+const RESUME_MOCK_FALLBACK = {
+  history: [
+    { id: "h1", title: "GitHub - Pull requests", url: "https://github.com/pulls", domain: "github.com", faviconUrl: "https://www.google.com/s2/favicons?domain=github.com&sz=32", visitedAt: "2025-03-03T10:30:00Z" },
+    { id: "h2", title: "Gmail - Inbox", url: "https://mail.google.com", domain: "mail.google.com", faviconUrl: "https://www.google.com/s2/favicons?domain=mail.google.com&sz=32", visitedAt: "2025-03-03T09:15:00Z" },
+    { id: "h3", title: "MDN Web Docs - JavaScript", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", domain: "developer.mozilla.org", faviconUrl: "https://www.google.com/s2/favicons?domain=developer.mozilla.org&sz=32", visitedAt: "2025-03-03T08:45:00Z" },
+  ],
+  tabs: [
+    { id: "t1", title: "Cursor - AI Code Editor", url: "https://cursor.com", domain: "cursor.com", faviconUrl: "https://www.google.com/s2/favicons?domain=cursor.com&sz=32" },
+    { id: "t2", title: "Stack Overflow - Questions", url: "https://stackoverflow.com/questions", domain: "stackoverflow.com", faviconUrl: "https://www.google.com/s2/favicons?domain=stackoverflow.com&sz=32" },
+  ],
+  bookmarks: [
+    { id: "b1", title: "Project Dashboard", url: "https://app.example.com/dashboard", domain: "app.example.com", faviconUrl: "https://www.google.com/s2/favicons?domain=example.com&sz=32", visitCount: 42 },
+    { id: "b2", title: "Design System", url: "https://design.example.com", domain: "design.example.com", faviconUrl: "https://www.google.com/s2/favicons?domain=example.com&sz=32", visitCount: 28 },
+  ],
+};
+
+const RESUME_FALLBACK_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%237c3aed' width='32' height='32' rx='6'/%3E%3Ctext x='16' y='21' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'%3E%3F%3C/text%3E%3C/svg%3E";
+
+function formatResumeTime(iso) {
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffM = Math.floor(diffMs / 60000);
+    if (diffM < 60) return `${diffM}m ago`;
+    const diffH = Math.floor(diffM / 60);
+    if (diffH < 24) return `${diffH}h ago`;
+    const diffD = Math.floor(diffH / 24);
+    return `${diffD}d ago`;
+  } catch (_) {
+    return "";
+  }
+}
+
+function renderResumeItem(item, source) {
+  const card = document.createElement("a");
+  card.href = item.url;
+  card.target = "_blank";
+  card.rel = "noopener noreferrer";
+  card.className = "resume-card";
+  card.setAttribute("data-id", item.id);
+  const favicon = item.faviconUrl || RESUME_FALLBACK_FAVICON;
+  const meta = source === "history" && item.visitedAt
+    ? formatResumeTime(item.visitedAt)
+    : source === "bookmarks" && item.visitCount != null
+      ? `${item.visitCount} visits`
+      : item.domain || "";
+  const img = document.createElement("img");
+  img.className = "resume-card-favicon";
+  img.src = favicon;
+  img.alt = "";
+  img.onerror = () => { img.src = RESUME_FALLBACK_FAVICON; };
+  const body = document.createElement("div");
+  body.className = "resume-card-body";
+  body.innerHTML = `<span class="resume-card-title">${escapeHtml(item.title)}</span><span class="resume-card-meta">${escapeHtml(meta)}</span>`;
+  card.append(img, body);
+  return card;
+}
+
+function renderResumePanel(panelEl, items, source) {
+  panelEl.innerHTML = "";
+  if (!items || items.length === 0) {
+    panelEl.innerHTML = '<p class="resume-empty">No items</p>';
+    return;
+  }
+  const list = document.createElement("div");
+  list.className = "resume-cards-list resume-cards-list--two-cols";
+  items.forEach((item) => {
+    list.appendChild(renderResumeItem(item, source));
+  });
+  panelEl.appendChild(list);
+}
+
+function initResumeSection() {
+  const section = document.getElementById("resume-section");
+  if (!section) return;
+
+  if (!ENABLE_RESUME) {
+    section.hidden = true;
+    return;
+  }
+
+  function renderAllPanels(data) {
+    renderResumePanel(document.getElementById("resume-panel-history"), data.history || [], "history");
+    renderResumePanel(document.getElementById("resume-panel-tabs"), data.tabs || [], "tabs");
+    renderResumePanel(document.getElementById("resume-panel-bookmarks"), data.bookmarks || [], "bookmarks");
+  }
+
+  renderAllPanels(RESUME_MOCK_FALLBACK);
+
+  fetch("resume_mock.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (data && (data.history || data.tabs || data.bookmarks)) renderAllPanels(data);
+    })
+    .catch(() => {});
+
+  const tabs = section.querySelectorAll(".resume-tab");
+  const panels = section.querySelectorAll(".resume-panel");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const source = tab.dataset.source;
+      tabs.forEach((t) => {
+        t.classList.remove("resume-tab--active");
+        t.setAttribute("aria-selected", "false");
+      });
+      tab.classList.add("resume-tab--active");
+      tab.setAttribute("aria-selected", "true");
+
+      panels.forEach((p) => {
+        p.classList.remove("resume-panel--active");
+        p.hidden = true;
+      });
+      const panel = document.getElementById(`resume-panel-${source}`);
+      if (panel) {
+        panel.classList.add("resume-panel--active");
+        panel.hidden = false;
+      }
+    });
+  });
+
+  section.hidden = !getShowResume();
+
+  section.querySelector(".resume-tabs")?.addEventListener("keydown", (e) => {
+    const idx = Array.from(tabs).findIndex((t) => t === document.activeElement);
+    if (e.key === "ArrowRight" && idx >= 0 && idx < tabs.length - 1) {
+      e.preventDefault();
+      tabs[idx + 1].focus();
+    } else if (e.key === "ArrowLeft" && idx > 0) {
+      e.preventDefault();
+      tabs[idx - 1].focus();
+    }
   });
 }
 
@@ -1977,6 +2346,10 @@ function openCustomizationPanel() {
   }
   const showShortcutsEl = document.getElementById("show-shortcuts-toggle");
   if (showShortcutsEl) showShortcutsEl.checked = getShowShortcuts();
+  const showResumeEl = document.getElementById("show-resume-toggle");
+  const showResumeField = document.getElementById("show-resume-field");
+  if (showResumeEl) showResumeEl.checked = getShowResume();
+  if (showResumeField) showResumeField.hidden = !ENABLE_RESUME;
   const rowsSelect = document.getElementById("shortcuts-rows-select");
   if (rowsSelect) {
     const rows = getShortcutsRows();
@@ -2054,6 +2427,13 @@ function setupCustomizationPanel() {
     renderShortcuts();
   });
 
+  const showResumeToggle = document.getElementById("show-resume-toggle");
+  showResumeToggle?.addEventListener("change", (e) => {
+    setShowResume(e.target.checked);
+    const section = document.getElementById("resume-section");
+    if (section) section.hidden = !e.target.checked;
+  });
+
   document.getElementById("change-wallpaper-btn")?.addEventListener("click", () => showToast("Coming soon"));
   document.getElementById("manage-topics-btn")?.addEventListener("click", () => showToast("Coming soon"));
   document.getElementById("show-widgets-toggle")?.addEventListener("change", (e) => {
@@ -2076,6 +2456,7 @@ function init() {
   }
   applyCustomization();
   renderShortcuts();
+  if (ENABLE_RESUME) initResumeSection();
   renderContentCards();
   setupDragAndDrop(document.getElementById("shortcuts-grid"));
   setupCustomizationPanel();

@@ -27,9 +27,25 @@
       </div>
     </section>
 
-    <section class="content-cards-section">
-      <div class="content-cards-grid" id="content-cards">
-        <!-- Content cards rendered by app.js -->
+    <section class="resume-section" id="resume-section" aria-label="Resume your tasks" hidden>
+      <div class="resume-section-header">
+        <h2 class="resume-section-title">Resume your tasks</h2>
+        <div class="resume-tabs" role="tablist" aria-label="Task source">
+          <button type="button" class="resume-tab resume-tab--active" role="tab" aria-selected="true" aria-controls="resume-panel-history" id="resume-tab-history" data-source="history" aria-label="History" title="History"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></button>
+          <button type="button" class="resume-tab" role="tab" aria-selected="false" aria-controls="resume-panel-tabs" id="resume-tab-tabs" data-source="tabs" aria-label="Tabs" title="Tabs"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></button>
+          <button type="button" class="resume-tab" role="tab" aria-selected="false" aria-controls="resume-panel-bookmarks" id="resume-tab-bookmarks" data-source="bookmarks" aria-label="Bookmarks" title="Bookmarks"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+      </div>
+      <div class="resume-panels">
+        <div class="resume-panel resume-panel--active" id="resume-panel-history" role="tabpanel" aria-labelledby="resume-tab-history"></div>
+        <div class="resume-panel" id="resume-panel-tabs" role="tabpanel" aria-labelledby="resume-tab-tabs" hidden></div>
+        <div class="resume-panel" id="resume-panel-bookmarks" role="tabpanel" aria-labelledby="resume-tab-bookmarks" hidden></div>
+      </div>
+    </section>
+
+    <section class="content-cards-section" id="content-cards-section">
+      <div id="content-cards">
+        <!-- Content blocks (topic + grid) rendered by app.js -->
       </div>
     </section>
   </main>
@@ -60,10 +76,10 @@
       <div class="customization-field" id="shortcuts-rows-field">
         <label class="customization-label" for="shortcuts-rows-select">Rows shown by default</label>
         <select id="shortcuts-rows-select" class="customization-select" aria-label="Number of rows">
-          <option value="1">1 row</option>
+          <option value="1" selected>1 row</option>
           <option value="2">2 rows</option>
           <option value="3">3 rows</option>
-          <option value="4" selected>4 rows</option>
+          <option value="4">4 rows</option>
         </select>
       </div>
       <div class="customization-field">
@@ -95,6 +111,13 @@
           <input type="checkbox" id="show-labels-toggle" checked>
           <span class="customization-toggle-slider"></span>
           Show labels
+        </label>
+      </div>
+      <div class="customization-field" id="show-resume-field">
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-resume-toggle">
+          <span class="customization-toggle-slider"></span>
+          Resume your tasks
         </label>
       </div>
       <div class="customization-divider"></div>
