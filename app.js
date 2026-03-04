@@ -529,7 +529,7 @@ function renderShortcutTile(shortcut, options = {}) {
     setupShortcutExpandBehavior(wrapper, shortcut);
   } else {
     const overlay = createShortcutOverlay(shortcut);
-    wrapper.appendChild(overlay);
+    document.body.appendChild(overlay);
     setupShortcutOverlayBehavior(wrapper, tile, overlay);
   }
 
@@ -589,8 +589,51 @@ function renderFolderTile(folder, shortcutsMap, options = {}) {
     openFolderPopover(wrapper, folder, shortcutsMap);
   });
 
+  const overlay = createFolderOverlay(folder, shortcutsMap);
+  document.body.appendChild(overlay);
+  setupShortcutOverlayBehavior(wrapper, tile, overlay);
+
   wrapper.appendChild(tile);
   return wrapper;
+}
+
+/**
+ * Create the hover overlay for a folder (quick action: Open in tab group)
+ */
+function createFolderOverlay(folder, shortcutsMap) {
+  const overlay = document.createElement("div");
+  overlay.className = "shortcut-hover-overlay folder-hover-overlay";
+  overlay.setAttribute("role", "tooltip");
+
+  const shortcutIds = folder.shortcutIds || [];
+  const favicons = shortcutIds.slice(0, 4).map((id) => {
+    const s = shortcutsMap[id];
+    return s?.faviconUrl || FALLBACK_FAVICON;
+  });
+  const faviconsHtml = favicons.length > 0
+    ? favicons.map((src) => `<img class="folder-overlay-favicon" src="${escapeHtml(src)}" alt="" onerror="this.src='${escapeHtml(FALLBACK_FAVICON)}'">`).join("")
+    : "";
+
+  overlay.innerHTML = `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--folder">
+      <span class="folder-overlay-title">${escapeHtml(folder.title || "Folder")}</span>
+      <div class="folder-overlay-favicons">${faviconsHtml}</div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+    </div>
+  `;
+
+  const tabGroupBtn = overlay.querySelector('[data-action="tab-group"]');
+  if (tabGroupBtn) {
+    tabGroupBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Open in tab group");
+    });
+  }
+
+  return overlay;
 }
 
 function isYouTubeShortcut(shortcut) {
@@ -705,7 +748,7 @@ function createShortcutOverlay(shortcut) {
       <div class="shortcut-overlay-reddit-list">${redditPostsHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
@@ -716,7 +759,7 @@ function createShortcutOverlay(shortcut) {
       <div class="shortcut-overlay-trending-list">${trendingHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
@@ -727,7 +770,7 @@ function createShortcutOverlay(shortcut) {
       <div class="shortcut-overlay-gmail-list">${gmailInboxHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
@@ -738,7 +781,7 @@ function createShortcutOverlay(shortcut) {
       <div class="shortcut-overlay-categories-grid">${categoriesHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
@@ -748,7 +791,7 @@ function createShortcutOverlay(shortcut) {
       <img class="shortcut-overlay-image" src="${overlayImageUrl}" alt="Preview of ${escapeHtml(shortcut.title)}">
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
@@ -765,7 +808,7 @@ function createShortcutOverlay(shortcut) {
       </div>
     </div>
     <div class="shortcut-overlay-actions">
-      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `;
@@ -820,7 +863,7 @@ function createShortcutOverlay(shortcut) {
     tabGroupBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      showToast("Open in tab group");
+      showToast("Open in a new tab");
     });
   }
   if (folderBtn) {
@@ -873,7 +916,7 @@ function setupShortcutExpandBehavior(wrapper, shortcut) {
         <span class="shortcut-expanded-label">${escapeHtml(shortcut.title)}</span>
         <div class="shortcut-expanded-posts">${postsHtml}</div>
         <div class="shortcut-expanded-actions">
-          <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in tab group</button>
+          <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
           <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
         </div>
       </div>
@@ -902,7 +945,7 @@ function setupShortcutExpandBehavior(wrapper, shortcut) {
       });
       const tabGroupBtn = panel.querySelector('[data-action="tab-group"]');
       const folderBtn = panel.querySelector('[data-action="folder"]');
-      if (tabGroupBtn) tabGroupBtn.addEventListener("click", (e) => { e.preventDefault(); showToast("Open in tab group"); });
+      if (tabGroupBtn) tabGroupBtn.addEventListener("click", (e) => { e.preventDefault(); showToast("Open in a new tab"); });
       if (folderBtn) folderBtn.addEventListener("click", (e) => { e.preventDefault(); createFolderFromShortcut(shortcut); });
     }, SHOW_DELAY);
   }
@@ -1413,7 +1456,7 @@ function toggleContextMenu(wrapper, shortcut) {
 
   const items = [
     { label: "Open in new tab", action: () => { window.open(shortcut.url, "_blank"); } },
-    { label: "Open in tab group", action: () => { console.log("Open in tab group:", shortcut.url); showToast("Open in tab group"); } },
+    { label: "Open in a new tab", action: () => { console.log("Open in a new tab:", shortcut.url); showToast("Open in a new tab"); } },
     { label: shortcut.pinned ? "Unpin" : "Pin", action: () => { togglePin(shortcut.id); } },
     { label: "Edit", action: () => openEditShortcutModal(shortcut) },
     { label: "Remove", action: () => { removeShortcut(shortcut.id); showToast("Shortcut removed"); } },
@@ -1498,14 +1541,15 @@ function togglePin(shortcutId) {
 }
 
 /**
- * Get visible items for rendering (shortcuts + folders from items array)
+ * Get visible items for rendering (shortcuts + folders from items array).
+ * Order: sponsored first, then all pinned shortcuts together, then rest (unpinned + folders).
  */
 function getVisibleItems(state) {
   const shortcuts = getShortcuts(state);
   const folders = getFolders(state);
   const items = getItems(state);
 
-  return items.map((item, itemIndex) => {
+  const mapped = items.map((item, itemIndex) => {
     if (item.type === "shortcut") {
       const shortcut = shortcuts[item.id];
       if (!shortcut) return null;
@@ -1519,6 +1563,11 @@ function getVisibleItems(state) {
     }
     return null;
   }).filter(Boolean);
+
+  const sponsored = mapped.filter((x) => x.area === "sponsored");
+  const pinned = mapped.filter((x) => x.area === "pinned");
+  const rest = mapped.filter((x) => x.area === "unpinned");
+  return [...sponsored, ...pinned, ...rest];
 }
 
 /**
@@ -1571,6 +1620,8 @@ function renderShortcuts() {
   const section = document.getElementById("shortcuts-section");
 
   if (!grid) return;
+
+  document.querySelectorAll(".shortcut-hover-overlay").forEach((el) => el.remove());
 
   const maxShow = getMaxShortcutsToShow();
   const isExpanded = shortcutsExpanded;
@@ -2542,13 +2593,15 @@ function openCustomizationPanel() {
   const view = getTileView();
   const viewRadio = panel.querySelector(`input[name="tileView"][value="${view}"]`);
   if (viewRadio) viewRadio.checked = true;
-  const slider = document.getElementById("grid-size-slider");
-  if (slider) slider.value = getGridSize();
+  const tileSize = getTileSize();
+  const tileSizeRadio = panel.querySelector(`input[name="tileSize"][value="${tileSize === "list" ? "default" : tileSize}"]`);
+  if (tileSizeRadio) tileSizeRadio.checked = true;
   const gridSizeField = document.getElementById("grid-size-field");
   if (gridSizeField) gridSizeField.hidden = view === "list";
+  const showLabelsField = document.getElementById("show-labels-field");
+  if (showLabelsField) showLabelsField.hidden = view === "list";
   const labelsEl = document.getElementById("show-labels-toggle");
   if (labelsEl) {
-    labelsEl.disabled = view === "list";
     labelsEl.checked = view === "list" ? true : localStorage.getItem(SHOW_LABELS_KEY) !== "false";
   }
   const showShortcutsEl = document.getElementById("show-shortcuts-toggle");
@@ -2591,9 +2644,10 @@ function setupCustomizationPanel() {
     radio.addEventListener("change", (e) => {
       setTileView(e.target.value);
       if (gridSizeField) gridSizeField.hidden = e.target.value === "list";
+      const showLabelsField = document.getElementById("show-labels-field");
+      if (showLabelsField) showLabelsField.hidden = e.target.value === "list";
       const labelsEl = document.getElementById("show-labels-toggle");
       if (labelsEl) {
-        labelsEl.disabled = e.target.value === "list";
         if (e.target.value === "list") labelsEl.checked = true;
         else labelsEl.checked = localStorage.getItem(SHOW_LABELS_KEY) !== "false";
       }
@@ -2602,11 +2656,15 @@ function setupCustomizationPanel() {
     });
   });
 
-  const slider = document.getElementById("grid-size-slider");
-  slider?.addEventListener("input", (e) => {
-    setGridSize(parseInt(e.target.value, 10));
-    applyCustomization();
-    renderShortcuts();
+  panel?.querySelectorAll('input[name="tileSize"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (val === "small") setGridSize(0);
+      else if (val === "large") setGridSize(100);
+      else setGridSize(50);
+      applyCustomization();
+      renderShortcuts();
+    });
   });
 
   const labelsToggle = document.getElementById("show-labels-toggle");
@@ -2642,6 +2700,9 @@ function setupCustomizationPanel() {
   });
 
   document.getElementById("change-wallpaper-btn")?.addEventListener("click", () => showToast("Coming soon"));
+  panel?.querySelectorAll(".customization-wallpaper-tile[data-wallpaper]").forEach((btn) => {
+    btn.addEventListener("click", () => showToast("Coming soon"));
+  });
   document.getElementById("manage-topics-btn")?.addEventListener("click", () => showToast("Coming soon"));
   document.getElementById("show-widgets-toggle")?.addEventListener("change", (e) => {
     e.target.checked = false;

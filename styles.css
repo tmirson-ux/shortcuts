@@ -453,6 +453,7 @@ body {
 .shortcut-tile-wrapper {
   position: relative;
   display: flex;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   flex-direction: column;
   align-items: center;
 }
@@ -467,11 +468,15 @@ body {
   background: transparent;
   text-decoration: none;
   color: var(--text-primary);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
 
 .shortcut-tile:hover {
-  opacity: 0.9;
+  opacity: 0.95;
+}
+
+.shortcut-tile:active {
+  transform: scale(0.97);
 }
 
 /* Drag-and-drop styles */
@@ -513,11 +518,15 @@ body {
   border-radius: 16px;
   flex-shrink: 0;
   transform-origin: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .shortcut-tile-wrapper:hover .shortcut-icon-wrapper {
   transform: scale(1.25);
+}
+
+.shortcut-tile-wrapper:not(.folder-tile-wrapper):hover {
+  transform: translateY(-4px);
 }
 
 .shortcut-favicon {
@@ -526,7 +535,7 @@ body {
   border-radius: 6px;
   object-fit: cover;
   transform-origin: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .shortcut-tile-wrapper:hover .shortcut-favicon {
@@ -640,6 +649,11 @@ body {
   text-align: left;
 }
 
+.shortcuts-section[data-tile-size="list"] .shortcut-tile,
+.shortcuts-section[data-tile-size="list"] .folder-tile {
+  transition: background 0.2s ease;
+}
+
 .shortcuts-section[data-tile-size="list"] .shortcut-tile:hover,
 .shortcuts-section[data-tile-size="list"] .folder-tile:hover {
   background: rgba(124, 58, 237, 0.06);
@@ -654,6 +668,12 @@ body {
   border-radius: 8px;
   flex-shrink: 0;
   position: relative;
+}
+
+.shortcuts-section[data-tile-size="list"] .shortcut-tile-wrapper:hover,
+.shortcuts-section[data-tile-size="list"] .shortcut-tile-wrapper:not(.folder-tile-wrapper):hover,
+.shortcuts-section[data-tile-size="list"] .folder-tile-wrapper:hover {
+  transform: none;
 }
 
 .shortcuts-section[data-tile-size="list"] .shortcut-tile-wrapper:hover .shortcut-icon-wrapper,
@@ -883,12 +903,21 @@ body {
 }
 
 /* Folder tile - 2x2 favicons + title */
+.folder-tile-wrapper {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.folder-tile-wrapper:hover {
+  transform: translateY(-4px);
+}
+
 .folder-tile-wrapper:hover .folder-tile {
-  transform: scale(1.15);
+  transform: scale(1.08);
 }
 
 .folder-tile {
   cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .folder-icon-wrapper {
@@ -1231,13 +1260,14 @@ body {
   opacity: 0;
   visibility: hidden;
   transform: scale(0.9) translateY(4px);
-  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease, background 0.15s, border-color 0.15s;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s, border-color 0.15s;
 }
 
 .add-shortcut-btn:hover {
   background: var(--accent-purple);
   border-color: var(--accent-purple);
   color: white;
+  transform: scale(1.08) translateY(0);
 }
 
 .add-shortcut-btn.drop-target {
@@ -1366,13 +1396,24 @@ body {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transform: scale(0.95) translateY(-4px);
+  transform-origin: top center;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .shortcut-hover-overlay.visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  transform: scale(1) translateY(0);
+}
+
+.folder-hover-overlay {
+  width: 200px;
+}
+
+.folder-hover-overlay .shortcut-overlay-preview--folder {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
 .shortcut-overlay-preview {
@@ -1407,6 +1448,38 @@ body {
 
 .shortcut-overlay-preview--sponsored .shortcut-overlay-image {
   object-fit: contain;
+}
+
+/* Folder overlay - compact preview */
+.shortcut-overlay-preview--folder {
+  height: auto;
+  min-height: 80px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.folder-overlay-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.folder-overlay-favicons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.folder-overlay-favicon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
 }
 
 /* Twitter/X trending overlay - compact list style */
@@ -2169,15 +2242,9 @@ body {
 .customization-panel-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(124, 58, 237, 0.1);
-}
-
-.customization-panel-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
 .customization-panel-close {
@@ -2239,6 +2306,67 @@ body {
 .customization-action-btn:hover {
   background: rgba(124, 58, 237, 0.1);
   border-color: rgba(124, 58, 237, 0.25);
+}
+
+.customization-action-btn--left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.customization-action-icon {
+  font-size: 1rem;
+}
+
+.customization-action-text {
+  flex: 1;
+}
+
+/* Wallpaper tiles grid */
+.customization-wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.customization-wallpaper-tile {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.customization-wallpaper-tile:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.customization-wallpaper-tile--upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: rgba(124, 58, 237, 0.08);
+  border: 2px dashed rgba(124, 58, 237, 0.3);
+}
+
+.customization-wallpaper-tile--upload:hover {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+.customization-wallpaper-upload-icon {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--accent-purple);
+}
+
+.customization-wallpaper-upload-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .customization-action-icon {
@@ -2442,10 +2570,11 @@ body {
 
 .customization-toggle-slider {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 32px;
+  height: 16px;
+  flex-shrink: 0;
   background: rgba(124, 58, 237, 0.2);
-  border-radius: 12px;
+  border-radius: 8px;
   transition: background 0.2s;
 }
 
@@ -2454,8 +2583,8 @@ body {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
   background: var(--bg-card);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -2467,7 +2596,7 @@ body {
 }
 
 .customization-toggle input:checked + .customization-toggle-slider::after {
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 /* ===== Customize FAB (bottom right) ===== */

@@ -54,24 +54,30 @@
   <div class="customization-panel-overlay" id="customization-panel-overlay" aria-hidden="true"></div>
   <aside class="customization-panel" id="customization-panel" aria-label="Shortcut customization">
     <div class="customization-panel-header">
-      <h2 class="customization-panel-title">Customize shortcuts</h2>
       <button type="button" class="customization-panel-close" id="customization-panel-close" aria-label="Close">×</button>
     </div>
     <div class="customization-panel-body">
       <div class="customization-field">
         <label class="customization-label">Appearance</label>
-        <button type="button" class="customization-action-btn" id="change-wallpaper-btn">
-          <span class="customization-action-icon">🖼</span>
-          Change wallpaper
-        </button>
+        <div class="customization-wallpaper-grid">
+          <button type="button" class="customization-wallpaper-tile customization-wallpaper-tile--upload" id="change-wallpaper-btn">
+            <span class="customization-wallpaper-upload-icon">+</span>
+            <span class="customization-wallpaper-upload-label">Upload</span>
+          </button>
+          <button type="button" class="customization-wallpaper-tile" data-wallpaper="nature" style="background:linear-gradient(135deg,#2d5a27,#1a3d16)"></button>
+          <button type="button" class="customization-wallpaper-tile" data-wallpaper="ocean" style="background:linear-gradient(135deg,#1e3a5f,#0d1f33)"></button>
+          <button type="button" class="customization-wallpaper-tile" data-wallpaper="sunset" style="background:linear-gradient(135deg,#8b4513,#ff6b35)"></button>
+          <button type="button" class="customization-wallpaper-tile" data-wallpaper="minimal" style="background:linear-gradient(135deg,#4a4a4a,#2d2d2d)"></button>
+          <button type="button" class="customization-wallpaper-tile" data-wallpaper="abstract" style="background:linear-gradient(135deg,#4c1d95,#7c3aed)"></button>
+        </div>
       </div>
       <div class="customization-divider"></div>
       <div class="customization-field">
-        <label class="customization-label">Manage your shortcuts</label>
+        <label class="customization-label">Shortcuts</label>
         <label class="customization-toggle">
           <input type="checkbox" id="show-shortcuts-toggle" checked>
           <span class="customization-toggle-slider"></span>
-          Show shortcuts
+          Shortcuts
         </label>
       </div>
       <div class="customization-field" id="shortcuts-rows-field">
@@ -95,25 +101,27 @@
         </div>
       </div>
       <div class="customization-field customization-field--grid-size" id="grid-size-field">
-        <label class="customization-label" for="grid-size-slider">Tile size</label>
-        <div class="customization-slider-wrap">
-          <span class="customization-slider-label">Small</span>
-          <div class="customization-slider-track">
-            <span class="customization-slider-tick" aria-hidden="true"></span>
-            <span class="customization-slider-tick" aria-hidden="true"></span>
-            <span class="customization-slider-tick" aria-hidden="true"></span>
-            <input type="range" id="grid-size-slider" class="customization-slider" min="0" max="100" value="50" step="50" aria-label="Grid tile size" title="Small, Default, Large">
-          </div>
-          <span class="customization-slider-label">Large</span>
+        <label class="customization-label">Tile size</label>
+        <div class="customization-view-toggle" role="radiogroup" aria-label="Tile size">
+          <label class="customization-view-option">
+            <input type="radio" name="tileSize" value="small"> Small
+          </label>
+          <label class="customization-view-option">
+            <input type="radio" name="tileSize" value="default" checked> Default
+          </label>
+          <label class="customization-view-option">
+            <input type="radio" name="tileSize" value="large"> Large
+          </label>
         </div>
       </div>
-      <div class="customization-field">
+      <div class="customization-field" id="show-labels-field">
         <label class="customization-toggle">
           <input type="checkbox" id="show-labels-toggle" checked>
           <span class="customization-toggle-slider"></span>
-          Show labels
+          Labels
         </label>
       </div>
+      <div class="customization-divider"></div>
       <div class="customization-field" id="show-resume-field">
         <label class="customization-toggle">
           <input type="checkbox" id="show-resume-toggle">
@@ -121,25 +129,24 @@
           Resume your tasks
         </label>
       </div>
-      <div class="customization-divider"></div>
-      <div class="customization-field">
-        <label class="customization-toggle">
-          <input type="checkbox" id="show-widgets-toggle">
-          <span class="customization-toggle-slider"></span>
-          Show widgets
-        </label>
-      </div>
       <div class="customization-field">
         <label class="customization-toggle">
           <input type="checkbox" id="show-stories-toggle" checked>
           <span class="customization-toggle-slider"></span>
-          Show stories
+          Stories
         </label>
       </div>
       <div class="customization-field">
-        <button type="button" class="customization-action-btn" id="manage-topics-btn">
+        <label class="customization-toggle">
+          <input type="checkbox" id="show-widgets-toggle">
+          <span class="customization-toggle-slider"></span>
+          Widgets
+        </label>
+      </div>
+      <div class="customization-field">
+        <button type="button" class="customization-action-btn customization-action-btn--left" id="manage-topics-btn">
           <span class="customization-action-icon">✨</span>
-          Manage your topic of interest
+          <span class="customization-action-text">Manage your topic</span>
         </button>
       </div>
     </div>
