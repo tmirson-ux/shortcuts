@@ -190,16 +190,16 @@ function getDialImagePaths(domain) {
 const SEED_SHORTCUTS_ARRAY = [
   { id: "s1", title: "Firefox", url: "https://mozilla.org/firefox", faviconUrl: faviconUrl("mozilla.org"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
   { id: "s2", title: "Mozilla VPN", url: "https://mozilla.org/products/vpn", faviconUrl: faviconUrl("mozilla.org"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
-  { id: 1, title: "Google", url: "https://google.com", faviconUrl: faviconUrl("google.com"), sponsored: false, pinned: true, hasUpdates: false, lastVisited: "2025-02-27T10:00:00Z" },
+  { id: 1, title: "Walmart", url: "https://walmart.com", faviconUrl: faviconUrl("walmart.com"), sponsored: false, pinned: true, hasUpdates: false, lastVisited: "2025-02-27T10:00:00Z" },
   { id: 2, title: "YouTube", url: "https://youtube.com", faviconUrl: faviconUrl("youtube.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T09:30:00Z" },
   { id: 3, title: "Gmail", url: "https://mail.google.com", faviconUrl: faviconUrl("mail.google.com"), sponsored: false, pinned: true, hasUpdates: true, updateCount: 3, lastVisited: "2025-02-27T08:15:00Z" },
-  { id: 4, title: "Twitter", url: "https://twitter.com", faviconUrl: faviconUrl("twitter.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-26T18:00:00Z" },
-  { id: 5, title: "Facebook", url: "https://facebook.com", faviconUrl: faviconUrl("facebook.com"), sponsored: false, pinned: false, hasUpdates: true, lastVisited: "2025-02-26T14:00:00Z" },
   { id: 6, title: "Instagram", url: "https://instagram.com", faviconUrl: faviconUrl("instagram.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-26T12:00:00Z" },
+  { id: 5, title: "Facebook", url: "https://facebook.com", faviconUrl: faviconUrl("facebook.com"), sponsored: false, pinned: false, hasUpdates: true, lastVisited: "2025-02-26T14:00:00Z" },
   { id: 7, title: "Reddit", url: "https://reddit.com", faviconUrl: faviconUrl("reddit.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-25T20:00:00Z" },
-  { id: 8, title: "Wikipedia", url: "https://wikipedia.org", faviconUrl: faviconUrl("wikipedia.org"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-25T15:30:00Z" },
-  { id: 9, title: "GitHub", url: "https://github.com", faviconUrl: faviconUrl("github.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T07:00:00Z" },
   { id: 10, title: "Amazon", url: "https://amazon.com", faviconUrl: faviconUrl("amazon.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-24T19:00:00Z" },
+  { id: 8, title: "Wikipedia", url: "https://wikipedia.org", faviconUrl: faviconUrl("wikipedia.org"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-25T15:30:00Z" },
+  { id: 4, title: "Twitter", url: "https://twitter.com", faviconUrl: faviconUrl("twitter.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-26T18:00:00Z" },
+  { id: 9, title: "GitHub", url: "https://github.com", faviconUrl: faviconUrl("github.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T07:00:00Z" },
 ];
 
 /**
@@ -649,6 +649,10 @@ function isAmazonShortcut(shortcut) {
   return (shortcut.url || "").toLowerCase().includes("amazon.com");
 }
 
+function isWalmartShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("walmart.com");
+}
+
 function isTwitterShortcut(shortcut) {
   const url = (shortcut.url || "").toLowerCase();
   return url.includes("twitter.com") || url.includes("x.com");
@@ -680,6 +684,14 @@ const GMAIL_FAKE_INBOX = [
   { from: "Calendar", subject: "Meeting reminder", preview: "Team standup in 30 minutes", time: "2h" },
 ];
 
+/** Fake cart items for Walmart overlay (things left in cart to resume) */
+const WALMART_CART_ITEMS = [
+  { name: "Organic Bananas", price: "$2.47", qty: 1 },
+  { name: "Great Value Milk, 1 Gallon", price: "$2.98", qty: 2 },
+  { name: "Wireless Earbuds", price: "$24.99", qty: 1 },
+];
+const WALMART_CART_SUBTOTAL = "$30.43";
+
 /** Fake categories for Amazon overlay (local, no API) */
 const AMAZON_CATEGORIES = [
   { name: "Electronics", icon: "📱" },
@@ -706,6 +718,7 @@ function createShortcutOverlay(shortcut) {
   const gmailInbox = isGmailShortcut(shortcut);
   const redditHeadlines = isRedditShortcut(shortcut);
   const amazonCategories = isAmazonShortcut(shortcut);
+  const walmartCart = isWalmartShortcut(shortcut);
   const twitterTrending = isTwitterShortcut(shortcut);
   const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null);
   const useImagePreview = !!overlayImageUrl;
@@ -733,6 +746,15 @@ function createShortcutOverlay(shortcut) {
     </button>
   `).join("");
   const categoriesHtml = AMAZON_CATEGORIES.map((c) => `<div class="shortcut-overlay-category-square"><span class="shortcut-overlay-category-icon">${escapeHtml(c.icon)}</span><span class="shortcut-overlay-category-name">${escapeHtml(c.name)}</span></div>`).join("");
+  const cartItemsHtml = WALMART_CART_ITEMS.map((item) => `
+    <div class="shortcut-overlay-cart-item">
+      <div class="shortcut-overlay-cart-thumb"></div>
+      <div class="shortcut-overlay-cart-details">
+        <span class="shortcut-overlay-cart-name">${escapeHtml(item.name)}</span>
+        <span class="shortcut-overlay-cart-meta">${escapeHtml(item.qty + " × " + item.price)}</span>
+      </div>
+    </div>
+  `).join("");
   const trendingHtml = TWITTER_TRENDING.map((t) => `<div class="shortcut-overlay-trending-item"><span class="shortcut-overlay-trending-topic">${escapeHtml(t.topic)}</span><span class="shortcut-overlay-trending-tag">${escapeHtml(t.tag)}</span><span class="shortcut-overlay-trending-posts">${escapeHtml(t.posts)} posts</span></div>`).join("");
   overlay.innerHTML = isSponsoredOverlay
     ? `
@@ -785,6 +807,27 @@ function createShortcutOverlay(shortcut) {
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
+    : walmartCart
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--cart">
+      <div class="shortcut-overlay-cart-header">
+        <span class="shortcut-overlay-cart-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </span>
+        <span class="shortcut-overlay-cart-title">Left in cart</span>
+        <span class="shortcut-overlay-cart-count">${WALMART_CART_ITEMS.length} items</span>
+      </div>
+      <div class="shortcut-overlay-cart-list">${cartItemsHtml}</div>
+      <div class="shortcut-overlay-cart-footer">
+        <span class="shortcut-overlay-cart-subtotal-label">Subtotal</span>
+        <span class="shortcut-overlay-cart-subtotal">${escapeHtml(WALMART_CART_SUBTOTAL)}</span>
+      </div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
     : useImagePreview
     ? `
     <div class="shortcut-overlay-preview shortcut-overlay-preview--image">
@@ -816,7 +859,7 @@ function createShortcutOverlay(shortcut) {
   let iframeLoaded = false;
 
   function loadPreview() {
-    if (useImagePreview || redditHeadlines || amazonCategories || twitterTrending || gmailInbox) return;
+    if (useImagePreview || redditHeadlines || amazonCategories || walmartCart || twitterTrending || gmailInbox) return;
     if (iframeLoaded) return;
     iframeLoaded = true;
     const iframe = overlay.querySelector(".shortcut-overlay-iframe");

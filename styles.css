@@ -1,19 +1,53 @@
-/* ===== CSS Variables - Purple Palette ===== */
+/* ===== CSS Variables - Firefox-inspired light palette ===== */
 :root {
-  --bg-soft: #f5f3ff;
+  --bg-soft: #f8f6fc;
   --bg-card: #ffffff;
   --accent-purple: #7c3aed;
   --accent-purple-light: #a78bfa;
   --accent-purple-dark: #5b21b6;
-  --text-primary: #1e1b4b;
+  --text-primary: #2d2d2d;
   --text-secondary: #6b7280;
-  --shadow-sm: 0 1px 2px rgba(124, 58, 237, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(124, 58, 237, 0.08), 0 2px 4px -2px rgba(124, 58, 237, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(124, 58, 237, 0.08), 0 4px 6px -4px rgba(124, 58, 237, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xl: 28px;
+}
+
+/* ===== Button rules ===== */
+/* Primary icon button: no background, solid 1px border; hover fill #E5DAEF */
+.btn-primary-icon {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-primary-icon:hover {
+  background-color: #E5DAEF;
+}
+
+/* Ghost icon button: no background, no border; hover background #E5DAEF */
+.btn-ghost-icon {
+  background: transparent;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-ghost-icon:hover {
+  background-color: #E5DAEF;
+}
+
+/* Ghost button: same as ghost icon button (text buttons) */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background-color: #E5DAEF;
 }
 
 /* ===== Reset & Base ===== */
@@ -80,11 +114,11 @@ body {
   width: 100%;
   padding: 0.875rem 1.25rem;
   font-size: 1rem;
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-xl);
   background: var(--bg-card);
   color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -94,8 +128,8 @@ body {
 
 .search-box:focus {
   outline: none;
-  border-color: var(--accent-purple);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== Main Content ===== */
@@ -108,7 +142,7 @@ body {
 /* ===== Shortcuts Section - Visual Focus ===== */
 .shortcuts-section {
   border-radius: var(--radius-lg);
-  padding: 1.7rem 1.7rem 0 1.7rem;
+  padding: 1.5rem 1.7rem 0 1.7rem;
   margin-bottom: 0;
   margin-left: auto;
   margin-right: auto;
@@ -134,12 +168,13 @@ body {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   margin-top: 0;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .shortcut-expanded-preview.visible {
   max-height: 400px;
   margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .shortcut-expanded-preview-inner {
@@ -204,7 +239,7 @@ body {
   flex-direction: column;
   gap: 0.125rem;
   background: var(--bg-card);
-  border: 1px solid rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-top: none;
   flex-shrink: 0;
   min-height: 0;
@@ -235,7 +270,7 @@ body {
   flex-wrap: wrap;
   flex-shrink: 0;
   padding-top: 0.25rem;
-  border-top: 1px solid rgba(124, 58, 237, 0.12);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .shortcuts-show-more-wrapper {
@@ -247,12 +282,12 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--accent-purple);
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
-  transition: background 0.15s, opacity 0.2s, visibility 0.2s;
+  transition: background-color 0.15s ease, opacity 0.2s, visibility 0.2s;
   opacity: 0;
   visibility: hidden;
 }
@@ -263,7 +298,7 @@ body {
 }
 
 .shortcuts-show-more-btn:hover {
-  background: rgba(124, 58, 237, 0.08);
+  background-color: #E5DAEF;
 }
 
 .shortcuts-section:hover .add-shortcut-btn {
@@ -515,10 +550,11 @@ body {
   width: 64px;
   height: 64px;
   background: var(--bg-card);
-  border-radius: 16px;
+  border-radius: 12px;
   flex-shrink: 0;
   transform-origin: center;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .shortcut-tile-wrapper:hover .shortcut-icon-wrapper {
@@ -736,6 +772,7 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .shortcuts-section[data-tile-size="small"] .shortcut-tile-wrapper:hover .shortcut-icon-wrapper {
@@ -819,6 +856,7 @@ body {
   border-radius: var(--radius-md);
   overflow: hidden;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .shortcuts-section[data-tile-size="large"] .shortcut-dial-image {
@@ -926,6 +964,9 @@ body {
   grid-template-rows: 1fr 1fr;
   gap: 2px;
   padding: 4px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .folder-favicons-grid {
@@ -967,9 +1008,9 @@ body {
   max-height: 400px;
   background: var(--bg-card);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  border: 1px solid rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1134,6 +1175,7 @@ body {
   background: transparent;
   border: none;
   border-radius: 6px;
+  transition: background-color 0.15s ease;
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s, color 0.15s, background 0.15s, top 0.2s ease, right 0.2s ease, border-radius 0.2s ease;
@@ -1148,8 +1190,7 @@ body {
 }
 
 .shortcut-context-btn:hover {
-  background: var(--accent-purple);
-  color: white;
+  background-color: #E5DAEF;
 }
 
 .shortcut-context-btn:focus {
@@ -1203,6 +1244,7 @@ body {
   border-radius: 6px;
   color: #6b7280;
   cursor: pointer;
+  transition: background-color 0.15s ease;
   opacity: 0;
   transition: opacity 0.15s, color 0.15s, background 0.15s, top 0.2s ease, left 0.2s ease;
 }
@@ -1214,8 +1256,7 @@ body {
 }
 
 .shortcut-pin-btn:hover {
-  background: var(--accent-purple);
-  color: white;
+  background-color: #E5DAEF;
 }
 
 .shortcut-pin-btn:focus {
@@ -1228,8 +1269,7 @@ body {
 }
 
 .shortcut-pin-btn--pinned:hover {
-  background: var(--accent-purple);
-  color: white;
+  background-color: #E5DAEF;
 }
 
 /* Add shortcut wrapper - inside add-shortcut-area */
@@ -1241,7 +1281,7 @@ body {
   min-width: 42px;
 }
 
-/* + Add shortcut - hidden by default, revealed on section hover */
+/* + Add shortcut - primary icon button, hidden by default, revealed on section hover */
 .add-shortcut-btn {
   display: flex;
   align-items: center;
@@ -1252,21 +1292,22 @@ body {
   font-weight: 300;
   line-height: 1;
   color: var(--text-secondary);
-  background: transparent;
-  border: 2px solid rgba(124, 58, 237, 0.3);
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   flex-shrink: 0;
   opacity: 0;
   visibility: hidden;
   transform: scale(0.9) translateY(4px);
-  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s, border-color 0.15s;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
+}
+
+.add-shortcut-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .add-shortcut-btn:hover {
-  background: var(--accent-purple);
-  border-color: var(--accent-purple);
-  color: white;
+  background-color: #E5DAEF;
   transform: scale(1.08) translateY(0);
 }
 
@@ -1274,19 +1315,19 @@ body {
   opacity: 1;
   visibility: visible;
   transform: scale(1) translateY(0);
-  background: rgba(124, 58, 237, 0.12);
-  border-color: var(--accent-purple);
+  background-color: #E5DAEF;
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Add shortcut settings - ghost icon button */
 .add-shortcut-settings-btn {
   font-size: 0;
-  border: none;
   background: transparent;
+  border: none;
 }
 
 .add-shortcut-settings-btn:hover {
-  background: var(--accent-purple);
-  color: white;
+  background-color: #E5DAEF;
 }
 
 /* Add shortcut modal */
@@ -1392,7 +1433,7 @@ body {
   width: 320px;
   background: var(--bg-card);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1753,6 +1794,116 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
+.shortcut-overlay-preview--cart {
+  padding: 0;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.shortcut-overlay-cart-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #0071dc 0%, #004f9a 100%);
+  color: #fff;
+}
+
+.shortcut-overlay-cart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.shortcut-overlay-cart-title {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.shortcut-overlay-cart-count {
+  font-size: 0.6875rem;
+  opacity: 0.9;
+}
+
+.shortcut-overlay-cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.5rem 0;
+}
+
+.shortcut-overlay-cart-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.15s;
+}
+
+.shortcut-overlay-cart-item:hover {
+  background: #f8fafc;
+}
+
+.shortcut-overlay-cart-thumb {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 8px;
+}
+
+.shortcut-overlay-cart-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.shortcut-overlay-cart-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shortcut-overlay-cart-meta {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.shortcut-overlay-cart-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.shortcut-overlay-cart-subtotal-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.shortcut-overlay-cart-subtotal {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0071dc;
+}
+
 .shortcut-overlay-fallback {
   position: absolute;
   inset: 0;
@@ -1789,7 +1940,7 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-top: 1px solid rgba(124, 58, 237, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .shortcut-overlay-btn {
@@ -1847,10 +1998,9 @@ body {
 
 .resume-section-title {
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
   margin: 0;
 }
 
@@ -1967,16 +2117,17 @@ body {
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--text-primary);
-  background: rgba(124, 58, 237, 0.04);
-  border: 1px solid rgba(124, 58, 237, 0.1);
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   cursor: pointer;
 }
 
 .resume-card:hover {
-  background: rgba(124, 58, 237, 0.08);
-  border-color: rgba(124, 58, 237, 0.2);
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .resume-card:focus {
@@ -2064,10 +2215,9 @@ body {
 
 .content-section-topic {
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
   margin: 0 0 1rem 0;
 }
 
@@ -2082,17 +2232,17 @@ body {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease;
 }
 
 .content-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .content-card-thumbnail {
   height: 120px;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.2) 100%);
+  background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
   position: relative;
   overflow: hidden;
 }
@@ -2244,7 +2394,7 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .customization-panel-close {
