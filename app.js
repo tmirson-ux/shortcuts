@@ -13,6 +13,7 @@ const TILE_GRID_SIZE_KEY = "homepage.gridSize";
 const SHOW_LABELS_KEY = "homepage.showLabels";
 const SHOW_SHORTCUTS_KEY = "homepage.showShortcuts";
 const SHOW_RESUME_KEY = "homepage.showResume";
+const SHOW_PREVIEW_NOTIFICATIONS_KEY = "homepage.showPreviewNotifications";
 const SHORTCUTS_ROWS_KEY = "homepage.shortcutsRows";
 const STATE_VERSION = 2;
 
@@ -126,6 +127,20 @@ function setShowShortcuts(show) {
   } catch (_) {}
 }
 
+function getShowPreviewNotifications() {
+  try {
+    const v = localStorage.getItem(SHOW_PREVIEW_NOTIFICATIONS_KEY);
+    if (v === "false") return false;
+  } catch (_) {}
+  return true;
+}
+
+function setShowPreviewNotifications(show) {
+  try {
+    localStorage.setItem(SHOW_PREVIEW_NOTIFICATIONS_KEY, String(show));
+  } catch (_) {}
+}
+
 function getShortcutsRows() {
   try {
     const v = localStorage.getItem(SHORTCUTS_ROWS_KEY);
@@ -171,9 +186,10 @@ const faviconUrl = (domain) =>
 const DIAL_DOMAIN_MAP = {
   "mail.google.com": "gmail",
   "x.com": "twitter",
+  "chat.openai.com": "chatgpt",
 };
 
-/** Derive dial image key from domain. youtube.com -> youtube, github.com -> github */
+/** Derive dial image key from domain. youtube.com -> youtube, chat.openai.com -> chatgpt */
 function getDialImageKey(domain) {
   if (DIAL_DOMAIN_MAP[domain]) return DIAL_DOMAIN_MAP[domain];
   const parts = domain.split(".");
@@ -188,18 +204,17 @@ function getDialImagePaths(domain) {
 }
 
 const SEED_SHORTCUTS_ARRAY = [
-  { id: "s1", title: "Firefox", url: "https://mozilla.org/firefox", faviconUrl: faviconUrl("mozilla.org"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
-  { id: "s2", title: "Mozilla VPN", url: "https://mozilla.org/products/vpn", faviconUrl: faviconUrl("mozilla.org"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
-  { id: 1, title: "Walmart", url: "https://walmart.com", faviconUrl: faviconUrl("walmart.com"), sponsored: false, pinned: true, hasUpdates: false, lastVisited: "2025-02-27T10:00:00Z" },
-  { id: 2, title: "YouTube", url: "https://youtube.com", faviconUrl: faviconUrl("youtube.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T09:30:00Z" },
+  { id: "s1", title: "Walmart", url: "https://walmart.com", faviconUrl: faviconUrl("walmart.com"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
+  { id: "s2", title: "eBay", url: "https://ebay.com", faviconUrl: faviconUrl("ebay.com"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
+  { id: "s3", title: "Amazon", url: "https://amazon.com", faviconUrl: faviconUrl("amazon.com"), sponsored: true, sponsoredLabel: "Sponsored", pinned: false, hasUpdates: false, lastVisited: null },
+  { id: 1, title: "YouTube", url: "https://youtube.com", faviconUrl: faviconUrl("youtube.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T09:30:00Z" },
   { id: 3, title: "Gmail", url: "https://mail.google.com", faviconUrl: faviconUrl("mail.google.com"), sponsored: false, pinned: true, hasUpdates: true, updateCount: 3, lastVisited: "2025-02-27T08:15:00Z" },
   { id: 6, title: "Instagram", url: "https://instagram.com", faviconUrl: faviconUrl("instagram.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-26T12:00:00Z" },
   { id: 5, title: "Facebook", url: "https://facebook.com", faviconUrl: faviconUrl("facebook.com"), sponsored: false, pinned: false, hasUpdates: true, lastVisited: "2025-02-26T14:00:00Z" },
   { id: 7, title: "Reddit", url: "https://reddit.com", faviconUrl: faviconUrl("reddit.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-25T20:00:00Z" },
-  { id: 10, title: "Amazon", url: "https://amazon.com", faviconUrl: faviconUrl("amazon.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-24T19:00:00Z" },
   { id: 8, title: "Wikipedia", url: "https://wikipedia.org", faviconUrl: faviconUrl("wikipedia.org"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-25T15:30:00Z" },
   { id: 4, title: "Twitter", url: "https://twitter.com", faviconUrl: faviconUrl("twitter.com"), sponsored: false, pinned: false, hasUpdates: false, lastVisited: "2025-02-26T18:00:00Z" },
-  { id: 9, title: "GitHub", url: "https://github.com", faviconUrl: faviconUrl("github.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T07:00:00Z" },
+  { id: 9, title: "ChatGPT", url: "https://chat.openai.com", faviconUrl: faviconUrl("chat.openai.com"), sponsored: false, pinned: true, hasUpdates: true, lastVisited: "2025-02-27T07:00:00Z" },
 ];
 
 /**
@@ -377,7 +392,7 @@ function renderShortcutTile(shortcut, options = {}) {
   const isLarge = getTileSize() === "large";
   const isList = getTileSize() === "list";
 
-  if (!isList && shortcut.hasUpdates && !shortcut.sponsored) {
+  if (!isList && shortcut.hasUpdates && !shortcut.sponsored && getShowPreviewNotifications()) {
     const updateBadge = document.createElement("span");
     updateBadge.className = "shortcut-update-badge";
     const isSmall = getTileSize() === "small";
@@ -445,7 +460,7 @@ function renderShortcutTile(shortcut, options = {}) {
     iconWrapper.appendChild(pinBtn);
   }
 
-  if (isList && shortcut.hasUpdates && !shortcut.sponsored) {
+  if (isList && shortcut.hasUpdates && !shortcut.sponsored && getShowPreviewNotifications()) {
     const updateBadge = document.createElement("span");
     updateBadge.className = "shortcut-update-badge";
     iconWrapper.appendChild(updateBadge);
@@ -525,9 +540,7 @@ function renderShortcutTile(shortcut, options = {}) {
     wrapper.appendChild(ctxBtn);
   }
 
-  if (isInstagramShortcut(shortcut)) {
-    setupShortcutExpandBehavior(wrapper, shortcut);
-  } else {
+  if (getShowPreviewNotifications()) {
     const overlay = createShortcutOverlay(shortcut);
     document.body.appendChild(overlay);
     setupShortcutOverlayBehavior(wrapper, tile, overlay);
@@ -589,9 +602,11 @@ function renderFolderTile(folder, shortcutsMap, options = {}) {
     openFolderPopover(wrapper, folder, shortcutsMap);
   });
 
-  const overlay = createFolderOverlay(folder, shortcutsMap);
-  document.body.appendChild(overlay);
-  setupShortcutOverlayBehavior(wrapper, tile, overlay);
+  if (getShowPreviewNotifications()) {
+    const overlay = createFolderOverlay(folder, shortcutsMap);
+    document.body.appendChild(overlay);
+    setupShortcutOverlayBehavior(wrapper, tile, overlay);
+  }
 
   wrapper.appendChild(tile);
   return wrapper;
@@ -653,6 +668,10 @@ function isWalmartShortcut(shortcut) {
   return (shortcut.url || "").toLowerCase().includes("walmart.com");
 }
 
+function isEbayShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("ebay.com");
+}
+
 function isTwitterShortcut(shortcut) {
   const url = (shortcut.url || "").toLowerCase();
   return url.includes("twitter.com") || url.includes("x.com");
@@ -662,11 +681,29 @@ function isInstagramShortcut(shortcut) {
   return (shortcut.url || "").toLowerCase().includes("instagram.com");
 }
 
+function isFacebookShortcut(shortcut) {
+  return (shortcut.url || "").toLowerCase().includes("facebook.com");
+}
+
+function isChatGPTShortcut(shortcut) {
+  const url = (shortcut.url || "").toLowerCase();
+  return url.includes("chat.openai.com") || url.includes("chatgpt.com");
+}
+
 /** Fake posts for Reddit Popular preview (local, no API) */
 const REDDIT_POPULAR_POSTS = [
   { subreddit: "r/AskReddit", title: "What's a skill that took you years to master but looks easy to others?", score: "2.4K", comments: "891" },
   { subreddit: "r/travel", title: "What's the most underrated city you've ever visited?", score: "1.8K", comments: "423" },
   { subreddit: "r/AskReddit", title: "What's something that was normal 20 years ago but seems crazy now?", score: "3.1K", comments: "1.2K" },
+];
+
+/** Suggested prompts for ChatGPT overlay - quick-start ideas that add value */
+const CHATGPT_SUGGESTED_PROMPTS = [
+  { prompt: "Explain this code in simple terms", icon: "💡" },
+  { prompt: "Summarize this article for me", icon: "📄" },
+  { prompt: "Write a professional email", icon: "✉️" },
+  { prompt: "Brainstorm ideas for...", icon: "💭" },
+  { prompt: "Translate to Spanish", icon: "🌐" },
 ];
 
 /** Fake trending for Twitter/X overlay (local, no API) */
@@ -692,19 +729,26 @@ const WALMART_CART_ITEMS = [
 ];
 const WALMART_CART_SUBTOTAL = "$30.43";
 
-/** Fake categories for Amazon overlay (local, no API) */
-const AMAZON_CATEGORIES = [
+/** Popular categories for eBay overlay */
+const EBAY_POPULAR_CATEGORIES = [
   { name: "Electronics", icon: "📱" },
-  { name: "Books", icon: "📚" },
-  { name: "Home", icon: "🏠" },
   { name: "Fashion", icon: "👕" },
+  { name: "Home & Garden", icon: "🏠" },
+  { name: "Collectibles", icon: "🏆" },
+  { name: "Toys & Games", icon: "🎮" },
+  { name: "Sporting Goods", icon: "⚽" },
 ];
 
-/** Overlay image for sponsored shortcuts: Firefox (s1), Mozilla VPN (s2) */
+/** Fake Prime Day deals for Amazon overlay (local, no API) */
+const AMAZON_PRIME_DAY_DEALS = [
+  { name: "Echo Dot (5th Gen)", price: "$24.99", wasPrice: "$49.99", primeOnly: true },
+  { name: "Fire TV Stick 4K", price: "$29.99", wasPrice: "$54.99", primeOnly: true },
+  { name: "Kindle Paperwhite", price: "$89.99", wasPrice: "$139.99", primeOnly: true },
+];
+
+/** Overlay image for sponsored shortcuts: Walmart (s1), eBay (s2) */
 function getSponsoredOverlayImageUrl(shortcut) {
   if (!shortcut?.sponsored) return null;
-  if (shortcut.id === "s1") return "images/firefox.png";
-  if (shortcut.id === "s2") return "images/vpn.png";
   return null;
 }
 
@@ -719,8 +763,11 @@ function createShortcutOverlay(shortcut) {
   const redditHeadlines = isRedditShortcut(shortcut);
   const amazonCategories = isAmazonShortcut(shortcut);
   const walmartCart = isWalmartShortcut(shortcut);
+  const ebayDeals = isEbayShortcut(shortcut);
   const twitterTrending = isTwitterShortcut(shortcut);
-  const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null);
+  const facebookImage = isFacebookShortcut(shortcut);
+  const instagramImage = isInstagramShortcut(shortcut);
+  const overlayImageUrl = sponsoredImageUrl || (youtubeImage ? "images/youtube.png" : null) || (walmartCart ? "images/mrec-wallmart.jpeg" : null) || (facebookImage ? "images/facebook-preview.jpg" : null) || (instagramImage ? "images/ig-preview.png" : null);
   const useImagePreview = !!overlayImageUrl;
 
   const overlay = document.createElement("div");
@@ -745,17 +792,33 @@ function createShortcutOverlay(shortcut) {
       <span class="shortcut-overlay-reddit-meta">↑ ${escapeHtml(p.score)} · ${escapeHtml(p.comments)} comments</span>
     </button>
   `).join("");
-  const categoriesHtml = AMAZON_CATEGORIES.map((c) => `<div class="shortcut-overlay-category-square"><span class="shortcut-overlay-category-icon">${escapeHtml(c.icon)}</span><span class="shortcut-overlay-category-name">${escapeHtml(c.name)}</span></div>`).join("");
-  const cartItemsHtml = WALMART_CART_ITEMS.map((item) => `
-    <div class="shortcut-overlay-cart-item">
-      <div class="shortcut-overlay-cart-thumb"></div>
-      <div class="shortcut-overlay-cart-details">
-        <span class="shortcut-overlay-cart-name">${escapeHtml(item.name)}</span>
-        <span class="shortcut-overlay-cart-meta">${escapeHtml(item.qty + " × " + item.price)}</span>
+  const primeDayDealsHtml = AMAZON_PRIME_DAY_DEALS.map((deal) => `
+    <button type="button" class="shortcut-overlay-prime-deal" data-fake-amazon-category>
+      <div class="shortcut-overlay-prime-deal-thumb"></div>
+      <div class="shortcut-overlay-prime-deal-details">
+        <span class="shortcut-overlay-prime-deal-name">${escapeHtml(deal.name)}</span>
+        <div class="shortcut-overlay-prime-deal-prices">
+          <span class="shortcut-overlay-prime-deal-price">${escapeHtml(deal.price)}</span>
+          <span class="shortcut-overlay-prime-deal-was">${escapeHtml(deal.wasPrice)}</span>
+        </div>
+        <span class="shortcut-overlay-prime-deal-badge">Prime</span>
       </div>
-    </div>
+    </button>
+  `).join("");
+  const ebayCategoriesHtml = EBAY_POPULAR_CATEGORIES.map((c) => `
+    <button type="button" class="shortcut-overlay-ebay-category" data-fake-ebay-deal>
+      <span class="shortcut-overlay-ebay-category-icon">${escapeHtml(c.icon)}</span>
+      <span class="shortcut-overlay-ebay-category-name">${escapeHtml(c.name)}</span>
+    </button>
   `).join("");
   const trendingHtml = TWITTER_TRENDING.map((t) => `<div class="shortcut-overlay-trending-item"><span class="shortcut-overlay-trending-topic">${escapeHtml(t.topic)}</span><span class="shortcut-overlay-trending-tag">${escapeHtml(t.tag)}</span><span class="shortcut-overlay-trending-posts">${escapeHtml(t.posts)} posts</span></div>`).join("");
+  const chatGPT = isChatGPTShortcut(shortcut);
+  const chatGPTPromptsHtml = CHATGPT_SUGGESTED_PROMPTS.map((p) => `
+    <button type="button" class="shortcut-overlay-chatgpt-prompt" data-fake-chatgpt-prompt>
+      <span class="shortcut-overlay-chatgpt-prompt-icon">${escapeHtml(p.icon)}</span>
+      <span class="shortcut-overlay-chatgpt-prompt-text">${escapeHtml(p.prompt)}</span>
+    </button>
+  `).join("");
   overlay.innerHTML = isSponsoredOverlay
     ? `
     <div class="shortcut-overlay-preview shortcut-overlay-preview--image shortcut-overlay-preview--sponsored">
@@ -796,32 +859,40 @@ function createShortcutOverlay(shortcut) {
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
-    : amazonCategories
+    : chatGPT
     ? `
-    <div class="shortcut-overlay-preview shortcut-overlay-preview--categories">
-      <span class="shortcut-overlay-categories-title">Shop by category</span>
-      <div class="shortcut-overlay-categories-grid">${categoriesHtml}</div>
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--chatgpt">
+      <span class="shortcut-overlay-chatgpt-title">Suggested prompts</span>
+      <div class="shortcut-overlay-chatgpt-list">${chatGPTPromptsHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
       <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
       <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
     </div>
   `
-    : walmartCart
+    : amazonCategories
     ? `
-    <div class="shortcut-overlay-preview shortcut-overlay-preview--cart">
-      <div class="shortcut-overlay-cart-header">
-        <span class="shortcut-overlay-cart-icon" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        </span>
-        <span class="shortcut-overlay-cart-title">Left in cart</span>
-        <span class="shortcut-overlay-cart-count">${WALMART_CART_ITEMS.length} items</span>
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--amazon">
+      <div class="shortcut-overlay-prime-header">
+        <span class="shortcut-overlay-prime-logo">Prime</span>
+        <span class="shortcut-overlay-prime-day">Day</span>
+        <span class="shortcut-overlay-prime-tagline">Exclusive deals for members</span>
       </div>
-      <div class="shortcut-overlay-cart-list">${cartItemsHtml}</div>
-      <div class="shortcut-overlay-cart-footer">
-        <span class="shortcut-overlay-cart-subtotal-label">Subtotal</span>
-        <span class="shortcut-overlay-cart-subtotal">${escapeHtml(WALMART_CART_SUBTOTAL)}</span>
+      <div class="shortcut-overlay-prime-deals">${primeDayDealsHtml}</div>
+      <div class="shortcut-overlay-prime-cta">Shop Prime Day deals</div>
+    </div>
+    <div class="shortcut-overlay-actions">
+      <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
+      <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+    </div>
+  `
+    : ebayDeals
+    ? `
+    <div class="shortcut-overlay-preview shortcut-overlay-preview--ebay">
+      <div class="shortcut-overlay-ebay-header">
+        <span class="shortcut-overlay-ebay-title">Popular categories</span>
       </div>
+      <div class="shortcut-overlay-ebay-grid">${ebayCategoriesHtml}</div>
     </div>
     <div class="shortcut-overlay-actions">
       <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
@@ -859,7 +930,7 @@ function createShortcutOverlay(shortcut) {
   let iframeLoaded = false;
 
   function loadPreview() {
-    if (useImagePreview || redditHeadlines || amazonCategories || walmartCart || twitterTrending || gmailInbox) return;
+    if (useImagePreview || redditHeadlines || amazonCategories || walmartCart || ebayDeals || twitterTrending || gmailInbox || chatGPT) return;
     if (iframeLoaded) return;
     iframeLoaded = true;
     const iframe = overlay.querySelector(".shortcut-overlay-iframe");
@@ -900,6 +971,27 @@ function createShortcutOverlay(shortcut) {
       showToast("Preview only — click shortcut to open");
     });
   });
+  overlay.querySelectorAll("[data-fake-amazon-category]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Preview only — click shortcut to open");
+    });
+  });
+  overlay.querySelectorAll("[data-fake-ebay-deal]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Preview only — click shortcut to open");
+    });
+  });
+  overlay.querySelectorAll("[data-fake-chatgpt-prompt]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showToast("Click shortcut to try this prompt in ChatGPT");
+    });
+  });
   const tabGroupBtn = overlay.querySelector('[data-action="tab-group"]');
   const folderBtn = overlay.querySelector('[data-action="folder"]');
   if (tabGroupBtn) {
@@ -922,7 +1014,7 @@ function createShortcutOverlay(shortcut) {
 }
 
 /**
- * Instagram: expand preview below shortcuts (no overlay)
+ * Instagram / Walmart: expand preview below shortcuts (no overlay)
  */
 function setupShortcutExpandBehavior(wrapper, shortcut) {
   const panel = document.getElementById("shortcut-expanded-preview");
@@ -966,6 +1058,25 @@ function setupShortcutExpandBehavior(wrapper, shortcut) {
     `;
   }
 
+  function getWalmartContent() {
+    return `
+      <div class="shortcut-expanded-preview-inner shortcut-expanded-preview-inner--walmart shortcut-expanded-preview-inner--walmart-ad">
+        <div class="shortcut-expanded-ad-image">
+          <img src="images/mrec-wallmart.jpeg" alt="Walmart advertising">
+        </div>
+        <div class="shortcut-expanded-actions">
+          <button type="button" class="shortcut-overlay-btn" data-action="tab-group">Open in a new tab</button>
+          <button type="button" class="shortcut-overlay-btn" data-action="folder">Create folder</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function getExpandContent() {
+    if (isWalmartShortcut(shortcut)) return getWalmartContent();
+    return getInstagramContent();
+  }
+
   function show() {
     if (isDraggingShortcut) return;
     if (hideTimeout) {
@@ -976,8 +1087,10 @@ function setupShortcutExpandBehavior(wrapper, shortcut) {
     showTimeout = setTimeout(() => {
       if (isDraggingShortcut) return;
       showTimeout = null;
-      panel.innerHTML = getInstagramContent();
+      panel.innerHTML = getExpandContent();
       panel.classList.add("visible");
+      if (isWalmartShortcut(shortcut)) panel.classList.add("shortcut-expanded-preview--walmart");
+      else panel.classList.remove("shortcut-expanded-preview--walmart");
       panel.setAttribute("aria-hidden", "false");
 
       panel.querySelectorAll("[data-fake-post]").forEach((btn) => {
@@ -2660,6 +2773,8 @@ function openCustomizationPanel() {
   }
   const shortcutsRowsField = document.getElementById("shortcuts-rows-field");
   if (shortcutsRowsField) shortcutsRowsField.hidden = !getShowShortcuts();
+  const showPreviewNotificationsEl = document.getElementById("show-preview-notifications-toggle");
+  if (showPreviewNotificationsEl) showPreviewNotificationsEl.checked = getShowPreviewNotifications();
   overlay.classList.add("customization-panel-overlay--visible");
   panel.classList.add("customization-panel--visible");
   overlay.setAttribute("aria-hidden", "false");
@@ -2740,6 +2855,12 @@ function setupCustomizationPanel() {
     setShowResume(e.target.checked);
     const section = document.getElementById("resume-section");
     if (section) section.hidden = !e.target.checked;
+  });
+
+  const showPreviewNotificationsToggle = document.getElementById("show-preview-notifications-toggle");
+  showPreviewNotificationsToggle?.addEventListener("change", (e) => {
+    setShowPreviewNotifications(e.target.checked);
+    renderShortcuts();
   });
 
   document.getElementById("change-wallpaper-btn")?.addEventListener("click", () => showToast("Coming soon"));
