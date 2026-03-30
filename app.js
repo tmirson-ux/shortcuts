@@ -325,30 +325,35 @@ function getSponsoredIds(state) {
 }
 
 /**
- * Mock content cards data (static)
+ * Mock content cards data (static) — stories: Popular today + Music
  */
 const MOCK_CONTENT_CARDS = [
-  { id: 1, title: "Getting Started with Web Development", snippet: "Learn the fundamentals of HTML, CSS, and JavaScript to build your first website.", size: "big", topic: "Technology" },
-  { id: 2, title: "Modern CSS Techniques", snippet: "Explore flexbox, grid, and custom properties for responsive layouts.", size: "default", topic: "Technology" },
-  { id: 3, title: "JavaScript Best Practices", snippet: "Write clean, maintainable code with these essential patterns and tips.", size: "small", topic: "Technology" },
-  { id: 4, title: "Browser DevTools Guide", snippet: "Master the tools that help you debug and optimize your web applications.", size: "default", topic: "Technology" },
-  { id: 5, title: "Accessibility Fundamentals", snippet: "Make your sites usable for everyone with ARIA and semantic HTML.", size: "small", topic: "Technology" },
-  { id: 6, title: "TypeScript Essentials", snippet: "Add type safety to your JavaScript projects.", size: "default", topic: "Technology" },
-  { id: 7, title: "React Hooks", snippet: "Modern state management in React.", size: "default", topic: "Technology" },
-  { id: 8, title: "Performance Optimization", snippet: "Speed up your pages with lazy loading, caching, and code splitting.", size: "big", topic: "Development" },
-  { id: 9, title: "Progressive Web Apps", snippet: "Build installable, offline-capable web experiences.", size: "default", topic: "Development" },
-  { id: 10, title: "API Design", snippet: "RESTful and GraphQL best practices.", size: "small", topic: "Development" },
-  { id: 11, title: "Testing Strategies", snippet: "Unit, integration, and e2e testing.", size: "small", topic: "Development" },
-  { id: 12, title: "CI/CD Pipelines", snippet: "Automate your deployment workflow.", size: "default", topic: "Development" },
-  { id: 13, title: "Monitoring & Observability", snippet: "Track performance and errors in production.", size: "small", topic: "Development" },
-  { id: 14, title: "Design Systems", snippet: "Create consistent UIs with reusable components and tokens.", size: "small", topic: "Design" },
-  { id: 15, title: "UI Patterns", snippet: "Common patterns for modern interfaces.", size: "default", topic: "Design" },
-  { id: 16, title: "Color Theory", snippet: "Effective use of color in design.", size: "default", topic: "Design" },
-  { id: 17, title: "Typography", snippet: "Choosing and pairing fonts.", size: "small", topic: "Design" },
-  { id: 18, title: "Motion Design", snippet: "Micro-interactions and animations.", size: "small", topic: "Design" },
-  { id: 19, title: "Debugging Tips", snippet: "Efficient debugging workflows.", size: "default", topic: "Development" },
-  { id: 20, title: "Code Review", snippet: "Best practices for reviewing code.", size: "small", topic: "Development" },
-  { id: 21, title: "Documentation", snippet: "Writing maintainable docs.", size: "small", topic: "Development" },
+  /* Popular today */
+  { id: 1, title: "Space agency announces next lunar mission window", snippet: "Officials say the rover program is on track for a summer launch; live briefing set for Thursday.", size: "big", topic: "Popular today" },
+  { id: 2, title: "Storm moves east: what to expect this weekend", snippet: "Meteorologists outline wind and rain timing; several cities issue travel advisories.", size: "default", topic: "Popular today" },
+  { id: 3, title: "Tech earnings beat estimates", snippet: "Chip demand and cloud growth surprise Wall Street in after-hours trading.", size: "small", topic: "Popular today" },
+  { id: 4, title: "New electric vehicle tax rules explained", snippet: "A simple breakdown of which buyers may qualify when the updated program rolls out.", size: "default", topic: "Popular today" },
+  { id: 5, title: "Olympic trials: highlight reel", snippet: "Underdog finishes strong in qualifying heat; social media reacts.", size: "small", topic: "Popular today" },
+  { id: 6, title: "Health study: sleep and memory", snippet: "Researchers tracked 10,000 adults; consistent bedtimes linked to sharper recall in tests.", size: "default", topic: "Popular today" },
+  { id: 7, title: "City votes on green transit plan", snippet: "Proposal would expand bus lanes and bike paths downtown by 2027.", size: "default", topic: "Popular today" },
+  { id: 8, title: "Streaming hit sets viewing record", snippet: "Finale draws the platform’s biggest audience yet for a scripted series.", size: "big", topic: "Popular today" },
+  { id: 9, title: "Wildfire containment update", snippet: "Crews report progress; air quality improves in two counties.", size: "default", topic: "Popular today" },
+  { id: 10, title: "Inflation report: consumer prices", snippet: "Monthly data shows mixed signals for food and energy.", size: "small", topic: "Popular today" },
+  { id: 11, title: "Recipe of the day: one-pan dinner", snippet: "Chefs share a 30-minute meal trending on short video apps.", size: "small", topic: "Popular today" },
+  { id: 12, title: "College finals week: study tips going viral", snippet: "Campus hashtags surge as students share focus routines and library memes.", size: "default", topic: "Popular today" },
+  /* Music — sizes tuned to row templates (2× big, 6× default, 4× small per topic) */
+  { id: 13, title: "Festival lineup leaks spark fan theories", snippet: "Unconfirmed posters point to surprise guests; organizers stay quiet until official drop.", size: "big", topic: "Music" },
+  { id: 14, title: "Vinyl sales climb for fifth year", snippet: "Indie labels and reissues drive growth; retailers expand shelf space.", size: "default", topic: "Music" },
+  { id: 15, title: "Producer interview: the art of the hook", snippet: "Behind the scenes on a chart-topping single recorded in a home studio.", size: "small", topic: "Music" },
+  { id: 16, title: "Orchestra announces winter tour", snippet: "Classical crossover program features guest soloists from three continents.", size: "default", topic: "Music" },
+  { id: 17, title: "Playlist: rising jazz artists", snippet: "Critics pick ten tracks worth your commute.", size: "small", topic: "Music" },
+  { id: 18, title: "Award show performances ranked", snippet: "From stripped-down ballads to full-band blowouts—what viewers talked about most.", size: "default", topic: "Music" },
+  { id: 19, title: "Streaming royalties under debate", snippet: "Lawmakers and artists lobby for new rules; platforms respond with transparency reports.", size: "default", topic: "Music" },
+  { id: 20, title: "Iconic venue reopens after renovation", snippet: "Capacity, acoustics, and a new rooftop patio draw opening-night crowds.", size: "big", topic: "Music" },
+  { id: 21, title: "Synth documentary hits theaters", snippet: "Filmmakers trace electronic music from krautrock to bedroom producers.", size: "default", topic: "Music" },
+  { id: 22, title: "Merch drop sells out in hours", snippet: "Limited edition tour jackets and vinyl bundles crash the store site briefly.", size: "small", topic: "Music" },
+  { id: 23, title: "Open mic night goes viral", snippet: "Street performance clip passes 50 million views; singer invited to late-night TV.", size: "small", topic: "Music" },
+  { id: 24, title: "Chart battle: two singles swap #1", snippet: "Streaming and radio numbers flip midweek in a tight race for the top spot.", size: "default", topic: "Music" },
 ];
 
 /** Row templates - each fills 4 columns exactly */
@@ -374,8 +379,11 @@ function renderShortcutTile(shortcut, options = {}) {
   wrapper.className = "shortcut-tile-wrapper";
 
   const tile = document.createElement("a");
-  tile.href = shortcut.url;
+  tile.href = "#";
   tile.className = "shortcut-tile";
+  tile.addEventListener("click", (e) => {
+    e.preventDefault();
+  });
   tile.setAttribute("data-id", shortcut.id);
   if (area != null) tile.setAttribute("data-area", area);
   if (indexInArea != null) tile.setAttribute("data-index", String(indexInArea));
@@ -484,11 +492,9 @@ function renderShortcutTile(shortcut, options = {}) {
   if (!shortcut.sponsored) {
     tile.addEventListener("click", (e) => {
       if (shortcut.hasUpdates && isGmailShortcut(shortcut)) {
-        e.preventDefault();
         markShortcutAsRead(shortcut.id);
         renderShortcuts();
         showToast("Marked as read");
-        window.open(shortcut.url, "_blank");
       }
     });
   }
